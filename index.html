@@ -527,7 +527,7 @@
             <!-- Welcome Message Box -->
             <div id="welcome-banner" class="mb-7 rounded-2xl bg-gradient-to-br from-teal-50/90 via-slate-50 to-indigo-50/60 border border-teal-100/80 p-5 text-center shadow-sm">
                 <p class="text-slate-700 text-sm md:text-base leading-loose font-medium">
-                    عزيزي.. أتيت إلى ملاذك الآمن؛ عندما تضيق بك الحياة وتُغلق الأبواب وتُحكم أقفالها، ليس لك ملاذٌ آمن سوى رب العالمين، وهو أرحم بنا من أمهاتنا ويسمعنا.
+                    عزيزي.. إذا أثقلت كاهلك أعباء الأيام وتزاحمت في صدرك الخواطر، فهنا مرفأ هادئ يبدأ باختيارك لشعورك؛ اختر ما يعبّر عن حالتك الآن لتجد ما يواسيه ويهدّئ نفسك، فما لنا ملاذٌ يطمئن به القلب غير رب العالمين، وهو أقرب إلينا وأرحم بنا.
                     <span class="block mt-2 text-teal-800 font-bold">خذ وقتك هنا بطمأنينة وسكينة، فكل خطوة هادئة تقرّبك من اتزانك.</span>
                 </p>
             </div>
@@ -2438,6 +2438,34 @@
     separateCardsAndInitJabr();
   }
   setTimeout(separateCardsAndInitJabr, 250);
+})();
+</script>
+
+
+<script id="sakina-dear-days-tone-script">
+(function () {
+  function applyFeelingChoiceText() {
+    const targetText = "عزيزي.. إذا أثقلت كاهلك أعباء الأيام وتزاحمت في صدرك الخواطر، فهنا مرفأ هادئ يبدأ باختيارك لشعورك؛ اختر ما يعبّر عن حالتك الآن لتجد ما يواسيه ويهدّئ نفسك، فما لنا ملاذٌ يطمئن به القلب غير رب العالمين، وهو أقرب إلينا وأرحم بنا.";
+    Array.from(document.querySelectorAll("p, div, span")).forEach(el => {
+      if (el.children.length === 0) {
+        const t = (el.textContent || "").trim();
+        if (
+          t.startsWith("عزيزي.. إذا أثقلت كاهلك") ||
+          t.startsWith("عزيزي.. الدنيا أحياناً") ||
+          t.startsWith("عزيزي.. إذا تضايقنا ظروف الأيام") ||
+          t.startsWith("عزيزي.. أتيت إلى ملاذك الآمن")
+        ) {
+          el.textContent = targetText;
+        }
+      }
+    });
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", applyFeelingChoiceText);
+  } else {
+    applyFeelingChoiceText();
+  }
+  setTimeout(applyFeelingChoiceText, 200);
 })();
 </script>
 
