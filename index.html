@@ -387,6 +387,48 @@
   }
 </style>
 
+
+<style id="sakina-separate-cards-style">
+  .sakina-stack-parent {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 14px !important;
+  }
+  [data-sakina-card="hero"] {
+    background-color: #ffffff !important;
+    border: 1px solid #e7ece8 !important;
+    border-radius: 24px !important;
+    padding: 20px 18px !important;
+  }
+  [data-sakina-card="jabr"] {
+    background-color: #f3eff8 !important;
+    border: 1px solid #e1d8ec !important;
+    border-radius: 24px !important;
+    padding: 20px 18px !important;
+  }
+  [data-sakina-card="dear"] {
+    background-color: #eef5f0 !important;
+    border: 1px solid #cfe0d4 !important;
+    border-radius: 24px !important;
+    padding: 18px 18px !important;
+  }
+  .sakina-jabr-tap-prompt {
+    cursor: pointer;
+    padding: 14px 16px;
+    border-radius: 16px;
+    background-color: #ffffff;
+    border: 1px dashed #b9a7cf;
+    color: #56426e;
+    font-weight: 700;
+    font-size: 14px;
+    text-align: center;
+    margin: 10px 0 12px 0;
+  }
+  .sakina-jabr-tap-prompt:hover {
+    background-color: #faf7fd;
+  }
+</style>
+
 </head>
 <body class="min-h-screen p-4 py-8 text-slate-800">
 
@@ -2283,6 +2325,119 @@
     renameWritingTitle();
   }
   setTimeout(renameWritingTitle, 250);
+})();
+</script>
+
+
+<script id="sakina-separate-cards-script">
+(function () {
+  function findJabrCard() {
+    const headings = Array.from(document.querySelectorAll("h1, h2, h3, h4, p, span, div, button")).filter(
+      el => el.children.length === 0 && (el.textContent || "").trim() === "رسالة الجبر"
+    );
+    for (const h of headings) {
+      const card = h.closest("section, article, div.rounded-3xl, div.rounded-2xl, div[class*='card'], div[class*='box']");
+      if (card && (card.textContent || "").includes("رسالة جديدة")) {
+        return card;
+      }
+    }
+    return null;
+  }
+
+  function findDearBox(scope) {
+    const candidates = Array.from((scope || document).querySelectorAll("section, article, div.rounded-3xl, div.rounded-2xl, div[class*='card'], div[class*='box'], div")).filter(el => {
+      const txt = (el.textContent || "").trim();
+      const hasDear = txt.includes("عزيزي..") || txt.includes("أتيت إلى ملاذك الآمن");
+      const hasFeelings = txt.includes("قلق وخوف") || txt.includes("حزن وفقد");
+      const hasJabr = txt.includes("رسالة جديدة");
+      return hasDear && !hasFeelings && !hasJabr;
+    });
+    return candidates.filter(el => !candidates.some(c => c !== el && el.contains(c)))[0] || null;
+  }
+
+  function separateCardsAndInitJabr() {
+    const jabrCard = findJabrCard();
+    if (!jabrCard) return;
+
+    const parent = jabrCard.parentElement;
+    if (parent) {
+      parent.classList.add("sakina-stack-parent");
+      jabrCard.setAttribute("data-sakina-card", "jabr");
+
+      const heroCandidate = Array.from(parent.children).find(
+        el => el !== jabrCard && (el.textContent || "").includes("HOUSE OF SAKINA") && !(el.textContent || "").includes("قلق وخوف")
+      );
+      if (heroCandidate) {
+        heroCandidate.setAttribute("data-sakina-card", "hero");
+      }
+
+      const dearBox = findDearBox(parent) || findDearBox(document);
+      if (dearBox) {
+        if (dearBox.parentElement !== parent) {
+          parent.insertBefore(dearBox, jabrCard.nextSibling);
+        }
+        dearBox.setAttribute("data-sakina-card", "dear");
+      }
+    }
+
+    // جعل رسالة الجبر في البداية تعرض: المس للحصول على رسالتك
+    if (jabrCard.dataset.jabrTapInit !== "1") {
+      jabrCard.dataset.jabrTapInit = "1";
+
+      const newMsgBtn = Array.from(jabrCard.querySelectorAll("button")).find(
+        b => (b.textContent || "").includes("رسالة جديدة")
+      );
+
+      const quoteEl = Array.from(jabrCard.querySelectorAll("p, blockquote, div, span")).find(el => {
+        if (el.children.length > 0) return false;
+        const t = (el.textContent || "").trim();
+        return t.length > 25 && !t.includes("رسالة الجبر") && !t.includes("رسالة جديدة") && !t.includes("المس للحصول على رسالتك");
+      });
+
+      const promptBox = document.createElement("div");
+      promptBox.className = "sakina-jabr-tap-prompt";
+      promptBox.textContent = "المس للحصول على رسالتك";
+
+      if (quoteEl) {
+        quoteEl.dataset.sakinaHiddenQuote = "1";
+        quoteEl.style.display = "none";
+        quoteEl.parentElement.insertBefore(promptBox, quoteEl);
+      } else if (newMsgBtn && newMsgBtn.parentElement) {
+        newMsgBtn.parentElement.insertBefore(promptBox, newMsgBtn);
+      }
+
+      if (newMsgBtn) {
+        newMsgBtn.style.display = "none";
+      }
+
+      function revealMessage(triggerNew) {
+        if (quoteEl) {
+          quoteEl.style.display = "";
+        }
+        promptBox.style.display = "none";
+        if (newMsgBtn) {
+          newMsgBtn.style.display = "";
+          if (triggerNew) {
+            newMsgBtn.click();
+          }
+        }
+      }
+
+      promptBox.addEventListener("click", () => revealMessage(false));
+      jabrCard.addEventListener("click", (e) => {
+        if (promptBox.style.display !== "none" && !e.target.closest("button")) {
+          revealMessage(false);
+        }
+      });
+    }
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", separateCardsAndInitJabr);
+  } else {
+    separateCardsAndInitJabr();
+  }
+  setTimeout(separateCardsAndInitJabr, 250);
 })();
 </script>
 
