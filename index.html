@@ -304,6 +304,31 @@
   }
 </style>
 
+
+<style id="sakina-feeling-cards-svg-style">
+  .sakina-feeling-icon-wrap {
+    width: 44px;
+    height: 44px;
+    margin: 0 auto 8px auto;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #eef3ef;
+    color: #3f5b45;
+  }
+  .sakina-feeling-icon-wrap svg {
+    width: 22px;
+    height: 22px;
+    display: block;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.95;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+</style>
+
 </head>
 <body class="min-h-screen p-4 py-8 text-slate-800">
 
@@ -1894,6 +1919,113 @@
     applyBreathToneToWriting();
   }
   setTimeout(applyBreathToneToWriting, 300);
+})();
+</script>
+
+
+<script id="sakina-feeling-cards-svg-script">
+(function () {
+  const iconsByFeeling = {
+    "حزن وفقد": {
+      bg: "#f2edf7",
+      fg: "#65537a",
+      svg: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 15.5h10.5a4 4 0 0 0 .5-7.97A5.5 5.5 0 0 0 6.8 6.4 3.5 3.5 0 0 0 6.5 15.5z"/><path d="M12 18.2c0 0-1.6 1.8-1.6 2.8a1.6 1.6 0 0 0 3.2 0c0-1-1.6-2.8-1.6-2.8z"/></svg>`
+    },
+    "قلق وخوف": {
+      bg: "#edf2f7",
+      fg: "#475c73",
+      svg: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5l7 3v5.5c0 4.6-2.9 7.8-7 9.5-4.1-1.7-7-4.9-7-9.5V6.5l7-3z"/><path d="M9.2 12.2c1-1.2 2-1.2 2.8 0s1.8 1.2 2.8 0"/></svg>`
+    },
+    "وحدة وغربة": {
+      bg: "#f6ecee",
+      fg: "#7a4e58",
+      svg: `<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="6.2" r="2.2"/><path d="M12 8.4v11.6"/><path d="M7.5 12.5h9"/><path d="M6.5 16.2a5.8 5.8 0 0 0 11 0"/></svg>`
+    },
+    "إرهاق وتعب": {
+      bg: "#f7f1e3",
+      fg: "#7a6133",
+      svg: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.5 14.8A6.8 6.8 0 0 1 9.2 5.5a6.8 6.8 0 1 0 9.3 9.3z"/><path d="M17.5 5.5v2.4M16.3 6.7h2.4"/></svg>`
+    },
+    "امتنان وسكينة": {
+      bg: "#e9f3ec",
+      fg: "#3a6649",
+      svg: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.2s-7.2-4.6-7.2-10.1A4.3 4.3 0 0 1 12 6.8a4.3 4.3 0 0 1 7.2 3.3c0 5.5-7.2 10.1-7.2 10.1z"/><path d="M12 6.8c.2-1.8 1.6-3.1 3.4-3.3"/></svg>`
+    },
+    "حيرة وتيه": {
+      bg: "#eaf2f1",
+      fg: "#3b625e",
+      svg: `<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><polygon points="14.8,9.2 13.4,13.4 9.2,14.8 10.6,10.6"/></svg>`
+    }
+  };
+
+  function injectFeelingIcons() {
+    const keys = Object.keys(iconsByFeeling);
+    const allEls = Array.from(document.querySelectorAll("button, [role='button'], div, a"));
+
+    // نختار أصغر حاوية لكل حالة تحتوي على اسم الحالة و"10 حالات دقيقة"
+    const matchingContainers = allEls.filter(el => {
+      const txt = (el.textContent || "");
+      if (!txt.includes("10 حالات دقيقة")) return false;
+      const matched = keys.filter(k => txt.includes(k));
+      return matched.length === 1;
+    });
+
+    const leafContainers = matchingContainers.filter(
+      el => !matchingContainers.some(child => child !== el && el.contains(child))
+    );
+
+    leafContainers.forEach(card => {
+      const txt = (card.textContent || "");
+      const key = keys.find(k => txt.includes(k));
+      if (!key) return;
+
+      const cfg = iconsByFeeling[key];
+      const existingWrap = card.querySelector(".sakina-feeling-icon-wrap");
+      if (existingWrap) {
+        existingWrap.style.backgroundColor = cfg.bg;
+        existingWrap.style.color = cfg.fg;
+        existingWrap.innerHTML = cfg.svg;
+        return;
+      }
+
+      const existingSvg = card.querySelector("svg");
+      if (existingSvg) {
+        const parentBadge = existingSvg.parentElement;
+        if (parentBadge && parentBadge !== card) {
+          parentBadge.classList.add("sakina-feeling-icon-wrap");
+          parentBadge.style.backgroundColor = cfg.bg;
+          parentBadge.style.color = cfg.fg;
+          parentBadge.innerHTML = cfg.svg;
+          return;
+        }
+        existingSvg.outerHTML = `<div class="sakina-feeling-icon-wrap" style="background-color:${cfg.bg};color:${cfg.fg}">${cfg.svg}</div>`;
+        return;
+      }
+
+      const labelNode = Array.from(card.querySelectorAll("span, p, div, h1, h2, h3, h4")).find(
+        n => n.children.length === 0 && (n.textContent || "").trim() === key
+      );
+
+      const wrap = document.createElement("div");
+      wrap.className = "sakina-feeling-icon-wrap";
+      wrap.style.backgroundColor = cfg.bg;
+      wrap.style.color = cfg.fg;
+      wrap.innerHTML = cfg.svg;
+
+      if (labelNode && labelNode.parentElement) {
+        labelNode.parentElement.insertBefore(wrap, labelNode);
+      } else {
+        card.insertBefore(wrap, card.firstChild);
+      }
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", injectFeelingIcons);
+  } else {
+    injectFeelingIcons();
+  }
+  setTimeout(injectFeelingIcons, 300);
 })();
 </script>
 
