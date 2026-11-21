@@ -285,6 +285,22 @@
   }
 </style>
 
+
+<style id="sakina-services-cards-bg">
+  [data-sakina-services-outer="1"] {
+    background-color: #fafbf9 !important;
+    border: 1px solid #e2e8e3 !important;
+  }
+  [data-sakina-tasbeeh-card="1"] {
+    background-color: #eef4ef !important;
+    border: 1px solid #cfe0d3 !important;
+  }
+  [data-sakina-breath-card="1"] {
+    background-color: #e5ece6 !important;
+    border: 1px solid #c6d7ca !important;
+  }
+</style>
+
 </head>
 <body class="min-h-screen p-4 py-8 text-slate-800">
 
@@ -1826,6 +1842,52 @@
     document.addEventListener("DOMContentLoaded", refineWelcomeBoxText);
   } else {
     refineWelcomeBoxText();
+  }
+})();
+</script>
+
+
+<script id="sakina-services-cards-bg-script">
+(function () {
+  function styleSakinaServicesCards() {
+    const headings = Array.from(document.querySelectorAll("h1, h2, h3, h4, p, span, div"));
+    const outerTitle = headings.find(
+      el => el.children.length === 0 && el.textContent && el.textContent.trim() === "خدمات السكينة"
+    );
+    if (!outerTitle) return;
+
+    const outerContainer = outerTitle.closest("section, article, div.rounded-3xl, div.rounded-2xl, div[class*='card'], div[class*='box']") || outerTitle.parentElement;
+    if (outerContainer && !(outerContainer.textContent || "").includes("سورة ")) {
+      outerContainer.setAttribute("data-sakina-services-outer", "1");
+    }
+
+    const searchScope = outerContainer || document;
+
+    const tasbeehTitle = Array.from(searchScope.querySelectorAll("h1, h2, h3, h4, p, span, div")).find(
+      el => el.children.length === 0 && el.textContent && el.textContent.trim() === "مسبحة السكينة"
+    );
+    if (tasbeehTitle) {
+      const tasbeehCard = tasbeehTitle.closest("section, article, div.rounded-2xl, div.rounded-xl, div[class*='card'], div[class*='box']") || tasbeehTitle.parentElement;
+      if (tasbeehCard && tasbeehCard !== outerContainer) {
+        tasbeehCard.setAttribute("data-sakina-tasbeeh-card", "1");
+      }
+    }
+
+    const breathTitle = Array.from(searchScope.querySelectorAll("h1, h2, h3, h4, p, span, div")).find(
+      el => el.children.length === 0 && el.textContent && el.textContent.trim() === "تنفس الطمأنينة"
+    );
+    if (breathTitle) {
+      const breathCard = breathTitle.closest("section, article, div.rounded-2xl, div.rounded-xl, div[class*='card'], div[class*='box']") || breathTitle.parentElement;
+      if (breathCard && breathCard !== outerContainer) {
+        breathCard.setAttribute("data-sakina-breath-card", "1");
+      }
+    }
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", styleSakinaServicesCards);
+  } else {
+    styleSakinaServicesCards();
   }
 })();
 </script>
