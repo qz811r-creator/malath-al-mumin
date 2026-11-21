@@ -62,6 +62,56 @@
   .card-green svg  { stroke: #4f6f56; }
 </style>
 
+
+<style id="sakina-breath-theme">
+  /* تنسيق قسم التنفس بالهوية الخضراء الهادئة المتوافقة مع بطاقة التنفس */
+  #breathing-section, .breathing-box, .breath-card, [data-section="breathing"] {
+    background-color: #e5ece6 !important;
+    border-color: #c8d8cb !important;
+    color: #2f4735 !important;
+  }
+  .sakina-breath-circle, .breath-circle, #breath-circle {
+    background-color: #d4e2d7 !important;
+    border-color: #4f6f56 !important;
+    color: #2f4735 !important;
+    transition: transform 4s ease-in-out, background-color 0.6s ease;
+  }
+  .sakina-breath-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background-color: #4f6f56;
+    color: #ffffff;
+    border: none;
+    border-radius: 999px;
+    padding: 10px 22px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(79, 111, 86, 0.22);
+    transition: transform 0.15s ease, background-color 0.2s ease;
+  }
+  .sakina-breath-trigger:hover {
+    background-color: #3f5b45;
+    transform: translateY(-1px);
+  }
+  .sakina-breath-trigger svg {
+    width: 22px;
+    height: 22px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .sakina-breath-timer {
+    margin-top: 8px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #3f5b45;
+  }
+</style>
+
 </head>
 <body class="min-h-screen p-4 py-8 text-slate-800">
 
@@ -913,5 +963,83 @@
 
         loadJournal();
     </script>
+
+<script id="sakina-breath-engine">
+(function () {
+  const breathSvg = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h10a2.5 2.5 0 1 0-2.5-2.5"/><path d="M3 13h14a2.5 2.5 0 1 1-2.5 2.5"/><path d="M5 17h6"/></svg>`;
+
+  function enhanceBreathingUI() {
+    const buttons = Array.from(document.querySelectorAll("button, a"));
+    const startBtn = buttons.find(el => el.textContent && el.textContent.includes("ابدأ الجلسة"));
+    if (!startBtn) return;
+
+    const container = startBtn.closest("section, div[class*='card'], div[class*='box'], div[class*='breath']") || startBtn.parentElement;
+    if (container) {
+      container.style.backgroundColor = "#e5ece6";
+      container.style.borderColor = "#c4d5c7";
+    }
+
+    // استبدال نص زر البدء بشعار التنفس وأيقونته مع الحفاظ على عمل الزر
+    if (!startBtn.dataset.sakinaEnhanced) {
+      startBtn.dataset.sakinaEnhanced = "1";
+      startBtn.classList.add("sakina-breath-trigger");
+      startBtn.style.backgroundColor = "#4f6f56";
+      startBtn.style.color = "#ffffff";
+      startBtn.innerHTML = `${breathSvg}<span>بدء التنفس</span>`;
+
+      let timerEl = container ? container.querySelector(".sakina-breath-timer") : null;
+      if (!timerEl && container) {
+        timerEl = document.createElement("div");
+        timerEl.className = "sakina-breath-timer";
+        timerEl.textContent = "العداد: 00:00";
+        startBtn.insertAdjacentElement("afterend", timerEl);
+      }
+
+      let seconds = 0;
+      let intervalId = null;
+
+      startBtn.addEventListener("click", function () {
+        if (intervalId) {
+          clearInterval(intervalId);
+          intervalId = null;
+          seconds = 0;
+          if (timerEl) timerEl.textContent = "العداد: 00:00";
+          startBtn.innerHTML = `${breathSvg}<span>بدء التنفس</span>`;
+          return;
+        }
+
+        startBtn.innerHTML = `${breathSvg}<span>إيقاف الجلسة</span>`;
+        intervalId = setInterval(() => {
+          seconds += 1;
+          const mins = String(Math.floor(seconds / 60)).padStart(2, "0");
+          const secs = String(seconds % 60).padStart(2, "0");
+          if (timerEl) {
+            const phases = ["شهيق هادئ", "إمساك لطيف", "زفير مطمئن"];
+            const phase = phases[Math.floor(seconds / 4) % phases.length];
+            timerEl.textContent = `${phase} — ${mins}:${secs}`;
+          }
+          // تحديث نص الدائرة إن وُجد نص "جاهز" أو عدّاد داخلي
+          if (container) {
+            const nodes = container.querySelectorAll("span, p, div");
+            nodes.forEach(n => {
+              if (n.children.length === 0 && (n.textContent.trim() === "جاهز" || /^(شهيق|إمساك|زفير|جاهز)/.test(n.textContent.trim()))) {
+                const phases = ["شهيق", "إمساك", "زفير"];
+                n.textContent = `${phases[Math.floor((seconds - 1) / 4) % 3]} (${(seconds - 1) % 4 + 1})`;
+              }
+            });
+          }
+        }, 1000);
+      });
+    }
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", enhanceBreathingUI);
+  } else {
+    enhanceBreathingUI();
+  }
+})();
+</script>
+
 </body>
 </html>
