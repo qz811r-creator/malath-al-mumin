@@ -384,7 +384,7 @@
             <div id="welcome-banner" class="mb-7 rounded-2xl bg-gradient-to-br from-teal-50/90 via-slate-50 to-indigo-50/60 border border-teal-100/80 p-5 text-center shadow-sm">
                 <p class="text-slate-700 text-sm md:text-base leading-loose font-medium">
                     عزيزي.. أتيت إلى ملاذك الآمن؛ عندما تضيق بك الحياة وتُغلق الأبواب وتُحكم أقفالها، ليس لك ملاذٌ آمن سوى رب العالمين، وهو أرحم بنا من أمهاتنا ويسمعنا.
-                    <span class="block mt-2 text-teal-800 font-bold">استمتع بالجبر من لدن عزيزٍ مقتدر.. دون إطلاق أحكام ودون قيود.</span>
+                    <span class="block mt-2 text-teal-800 font-bold">خذ وقتك هنا بطمأنينة وسكينة، فكل خطوة هادئة تقرّبك من اتزانك.</span>
                 </p>
             </div>
 
@@ -1782,6 +1782,50 @@
     document.addEventListener("DOMContentLoaded", polishWritingShades);
   } else {
     polishWritingShades();
+  }
+})();
+</script>
+
+
+<script id="sakina-update-welcome-copy">
+(function () {
+  function refineWelcomeBoxText() {
+    const boxes = Array.from(document.querySelectorAll("section, article, div")).filter(el => {
+      const t = (el.textContent || "").trim();
+      return t.includes("ملاذك الآمن") || t.includes("إطلاق أحكام") || t.includes("قيود");
+    });
+
+    const targetBox = boxes.find(el => {
+      const t = (el.textContent || "").trim();
+      return t.includes("قلق وخوف") && t.includes("حزن وفقد");
+    });
+
+    if (!targetBox) return;
+
+    const textNodes = Array.from(targetBox.querySelectorAll("p, span, div")).filter(el => {
+      if (el.children.length > 0) return false;
+      const txt = (el.textContent || "").trim();
+      return (
+        txt.includes("ملاذك الآمن") ||
+        txt.includes("أرحم بنا من أمهاتنا") ||
+        txt.includes("إطلاق أحكام") ||
+        txt.includes("قيود") ||
+        txt.includes("استمتع بالجبر")
+      );
+    });
+
+    if (textNodes.length >= 2) {
+      textNodes[0].textContent = "أهلاً بك في ملاذك الآمن؛ هنا مساحة هادئة تضع فيها ما يثقل خاطرك وتلتقط أنفاسك بهدوء. ربّك أقرب إليك من حبل الوريد، يسمع شكواك ويجبر كسرك بلطفه ورحمته.";
+      textNodes[1].textContent = "خذ وقتك هنا بطمأنينة وسكينة، فكل خطوة هادئة تقرّبك من اتزانك.";
+    } else if (textNodes.length === 1) {
+      textNodes[0].textContent = "أهلاً بك في ملاذك الآمن؛ هنا مساحة هادئة تضع فيها ما يثقل خاطرك وتلتقط أنفاسك بهدوء. ربّك أقرب إليك من حبل الوريد، يسمع شكواك ويجبر كسرك بلطفه ورحمته. خذ وقتك هنا بطمأنينة وسكينة، فكل خطوة هادئة تقرّبك من اتزانك.";
+    }
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", refineWelcomeBoxText);
+  } else {
+    refineWelcomeBoxText();
   }
 })();
 </script>
