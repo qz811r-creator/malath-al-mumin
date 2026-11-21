@@ -242,48 +242,7 @@
 </style>
 
 
-<style id="sakina-writing-shades-polish">
-  [data-sakina-writing-panel="1"] {
-    background-color: #e5ece6 !important;
-    border: 1px solid #c8d8cb !important;
-    color: #2f4735 !important;
-  }
-  [data-sakina-writing-subcard="1"] {
-    background-color: #eef3ef !important;
-    border: 1px solid #d1dfd4 !important;
-    color: #3f5b45 !important;
-  }
-  [data-sakina-writing-subcard="1"].sakina-subcard-alt {
-    background-color: #e1ece3 !important;
-    border-color: #c4d6c8 !important;
-  }
-  [data-sakina-writing-panel="1"] input,
-  [data-sakina-writing-panel="1"] textarea {
-    background-color: #ffffff !important;
-    border: 1px solid #c5d6c9 !important;
-    color: #263b2b !important;
-  }
-  [data-sakina-writing-panel="1"] input::placeholder,
-  [data-sakina-writing-panel="1"] textarea::placeholder {
-    color: #7c9282 !important;
-  }
-  [data-sakina-writing-save="1"] {
-    background-color: #4f6f56 !important;
-    color: #ffffff !important;
-    border: none !important;
-  }
-  [data-sakina-writing-save="1"]:hover {
-    background-color: #3f5b45 !important;
-  }
-  [data-sakina-writing-clear="1"] {
-    background-color: #dce7de !important;
-    color: #3f5b45 !important;
-    border: 1px solid #bfd1c2 !important;
-  }
-  [data-sakina-writing-clear="1"]:hover {
-    background-color: #cddcd0 !important;
-  }
-</style>
+
 
 
 <style id="sakina-services-cards-bg">
@@ -298,6 +257,51 @@
   [data-sakina-breath-card="1"] {
     background-color: #e5ece6 !important;
     border: 1px solid #c6d7ca !important;
+  }
+</style>
+
+
+<style id="sakina-unified-writing-boxes">
+  [data-sakina-wt-root="1"] {
+    background-color: #e5ece6 !important;
+    border: 1px solid #c7d7ca !important;
+    color: #2f4735 !important;
+  }
+  [data-sakina-wt-box="1"] {
+    background-color: #f1f5f2 !important;
+    border: 1px solid #d5e1d8 !important;
+    color: #354e3b !important;
+  }
+  [data-sakina-wt-box="1"] h1,
+  [data-sakina-wt-box="1"] h2,
+  [data-sakina-wt-box="1"] h3,
+  [data-sakina-wt-box="1"] h4,
+  [data-sakina-wt-box="1"] label,
+  [data-sakina-wt-box="1"] p,
+  [data-sakina-wt-box="1"] span {
+    color: #354e3b !important;
+  }
+  [data-sakina-wt-root="1"] input,
+  [data-sakina-wt-root="1"] textarea {
+    background-color: #ffffff !important;
+    border: 1px solid #c8d8cb !important;
+    color: #243829 !important;
+  }
+  [data-sakina-wt-save="1"] {
+    background-color: #4f6f56 !important;
+    border: 1px solid #4f6f56 !important;
+    color: #ffffff !important;
+  }
+  [data-sakina-wt-save="1"]:hover {
+    background-color: #3e5944 !important;
+  }
+  [data-sakina-wt-clear="1"] {
+    background-color: #dce7de !important;
+    border: 1px solid #bdd0c1 !important;
+    color: #354e3b !important;
+  }
+  [data-sakina-wt-clear="1"]:hover {
+    background-color: #cddcd0 !important;
   }
 </style>
 
@@ -1745,62 +1749,7 @@
 </script>
 
 
-<script id="sakina-writing-shades-script">
-(function () {
-  function polishWritingShades() {
-    const headings = Array.from(document.querySelectorAll("h1, h2, h3, h4, p, span, div"));
-    const titleEl = headings.find(
-      el => el.children.length === 0 && el.textContent && el.textContent.trim() === "العلاج بالكتابة"
-    );
-    if (!titleEl) return;
 
-    const panel = titleEl.closest("section, article, div.rounded-3xl, div.rounded-2xl, div[class*='card'], div[class*='box']") || titleEl.parentElement;
-    if (!panel) return;
-    if ((panel.textContent || "").includes("ملاذ المؤمن") || (panel.textContent || "").includes("سورة ")) return;
-
-    panel.setAttribute("data-sakina-writing-panel", "1");
-
-    // تنسيق البطاقات/الصناديق الداخلية الثلاثة بتدرج متناسق
-    const subCards = Array.from(panel.querySelectorAll("div.rounded-2xl, div.rounded-xl, div[class*='card'], div[class*='box'], section, article")).filter(
-      el => el !== panel && (el.querySelector("input, textarea") || (el.textContent || "").includes("أجمل أحداث اليوم") || (el.textContent || "").includes("أفضل 3 صفات") || (el.textContent || "").includes("فضفضة"))
-    );
-
-    // حصر الصناديق المباشرة لتجنب تلوين حاويات فرعية بداخلها بشكل متكرر
-    const topSubCards = subCards.filter(el => !subCards.some(other => other !== el && other.contains(el)));
-    topSubCards.forEach((box, index) => {
-      box.setAttribute("data-sakina-writing-subcard", "1");
-      if (index % 2 === 1) {
-        box.classList.add("sakina-subcard-alt");
-      }
-      box.querySelectorAll("h1, h2, h3, h4, label, p, span").forEach(lbl => {
-        if (lbl.children.length === 0 && !lbl.closest("input, textarea, button")) {
-          const t = (lbl.textContent || "").trim();
-          if (t.includes("أجمل أحداث") || t.includes("أفضل 3 صفات") || t.includes("فضفضة")) {
-            lbl.style.color = "#3f5b45";
-            lbl.style.fontWeight = "700";
-          }
-        }
-      });
-    });
-
-    // تنسيق أزرار الحفظ والمسح داخل قسم العلاج بالكتابة فقط
-    panel.querySelectorAll("button").forEach(btn => {
-      const bText = (btn.textContent || "").trim();
-      if (bText.includes("حفظ التأملات")) {
-        btn.setAttribute("data-sakina-writing-save", "1");
-      } else if (bText === "مسح" || bText.includes("مسح")) {
-        btn.setAttribute("data-sakina-writing-clear", "1");
-      }
-    });
-  }
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", polishWritingShades);
-  } else {
-    polishWritingShades();
-  }
-})();
-</script>
 
 
 <script id="sakina-update-welcome-copy">
@@ -1888,6 +1837,49 @@
     document.addEventListener("DOMContentLoaded", styleSakinaServicesCards);
   } else {
     styleSakinaServicesCards();
+  }
+})();
+</script>
+
+
+<script id="sakina-unified-writing-boxes-script">
+(function () {
+  function unifyWritingTherapy() {
+    const titleNode = Array.from(document.querySelectorAll("h1, h2, h3, h4, p, span, div")).find(
+      el => el.children.length === 0 && el.textContent && el.textContent.trim() === "العلاج بالكتابة"
+    );
+    if (!titleNode) return;
+
+    const root = titleNode.closest("section, article, div.rounded-3xl, div.rounded-2xl, div[class*='card'], div[class*='box']") || titleNode.parentElement;
+    if (!root) return;
+    if ((root.textContent || "").includes("ملاذ المؤمن") || (root.textContent || "").includes("سورة ")) return;
+
+    root.setAttribute("data-sakina-wt-root", "1");
+
+    // إيجاد المربعات التي تحتوي على حقول الإدخال أو عناوين التأمل وتوحيدها بلون واحد فاتح
+    const allBoxes = Array.from(root.querySelectorAll("div.rounded-2xl, div.rounded-xl, div[class*='card'], div[class*='box'], section, article")).filter(
+      el => el !== root && el.querySelector("input, textarea")
+    );
+
+    const leafBoxes = allBoxes.filter(el => !allBoxes.some(child => child !== el && el.contains(child)));
+    leafBoxes.forEach(box => {
+      box.setAttribute("data-sakina-wt-box", "1");
+    });
+
+    root.querySelectorAll("button").forEach(btn => {
+      const t = (btn.textContent || "").trim();
+      if (t.includes("حفظ التأملات")) {
+        btn.setAttribute("data-sakina-wt-save", "1");
+      } else if (t === "مسح" || t.includes("مسح")) {
+        btn.setAttribute("data-sakina-wt-clear", "1");
+      }
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", unifyWritingTherapy);
+  } else {
+    unifyWritingTherapy();
   }
 })();
 </script>
