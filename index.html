@@ -329,6 +329,64 @@
   }
 </style>
 
+
+<style id="sakina-tasbeeh-controls-style">
+  [data-sakina-sound-btn="1"] {
+    display: none !important;
+  }
+  .sakina-target-box {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed #d3e0d6;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .sakina-target-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #3f5b45;
+  }
+  .sakina-target-controls {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .sakina-target-input {
+    width: 84px;
+    padding: 5px 8px;
+    border-radius: 10px;
+    border: 1px solid #bfd1c2;
+    background-color: #ffffff;
+    color: #243829;
+    font-size: 13px;
+    text-align: center;
+    outline: none;
+  }
+  .sakina-target-input:focus {
+    border-color: #4f6f56;
+  }
+  .sakina-target-apply,
+  .sakina-target-open {
+    padding: 5px 10px;
+    border-radius: 10px;
+    border: 1px solid #bfd1c2;
+    background-color: #eef4ef;
+    color: #354e3b;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .sakina-target-apply.is-active,
+  .sakina-target-open.is-active {
+    background-color: #4f6f56;
+    border-color: #4f6f56;
+    color: #ffffff;
+  }
+</style>
+
 </head>
 <body class="min-h-screen p-4 py-8 text-slate-800">
 
@@ -2026,6 +2084,184 @@
     injectFeelingIcons();
   }
   setTimeout(injectFeelingIcons, 300);
+})();
+</script>
+
+
+<script id="sakina-tasbeeh-controls-script">
+(function () {
+  let targetLimit = 33; // null يعني مفتوح
+
+  // كتم أي محاولة صوتية داخل الصفحة
+  try {
+    if (window.speechSynthesis && typeof window.speechSynthesis.cancel === "function") {
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak = function () {};
+    }
+  } catch (e) {}
+
+  try {
+    const OrigAudio = window.Audio;
+    if (OrigAudio) {
+      window.Audio = function () {
+        return {
+          play: function () { return Promise.resolve(); },
+          pause: function () {},
+          load: function () {},
+          addEventListener: function () {},
+          removeEventListener: function () {},
+          setAttribute: function () {}
+        };
+      };
+    }
+  } catch (e) {}
+
+  function muteSoundButton(tasbeehCard) {
+    if (!tasbeehCard) return;
+    tasbeehCard.querySelectorAll("button").forEach(btn => {
+      const aria = (btn.getAttribute("aria-label") || "").toLowerCase();
+      const title = (btn.getAttribute("title") || "").toLowerCase();
+      const hasSvg = !!btn.querySelector("svg");
+      const txt = (btn.textContent || "").trim();
+      if (
+        aria.includes("sound") || aria.includes("audio") || aria.includes("mute") || aria.includes("صوت") ||
+        title.includes("sound") || title.includes("audio") || title.includes("صوت") ||
+        (hasSvg && txt === "")
+      ) {
+        btn.setAttribute("data-sakina-sound-btn", "1");
+        btn.style.display = "none";
+      }
+    });
+  }
+
+  function updateTargetDisplay(tasbeehCard) {
+    if (!tasbeehCard) return;
+    const nodes = Array.from(tasbeehCard.querySelectorAll("span, p, div"));
+    nodes.forEach(el => {
+      if (el.children.length === 0) {
+        const t = (el.textContent || "").trim();
+        if (/^من\s+\d+\s+تسبيحة$/.test(t) || t === "عدّ مفتوح") {
+          el.textContent = targetLimit === null ? "عدّ مفتوح" : "من " + targetLimit + " تسبيحة";
+        }
+      }
+    });
+  }
+
+  function enforceCustomTarget() {
+    const titleEl = Array.from(document.querySelectorAll("h1, h2, h3, h4, p, span, div")).find(
+      el => el.children.length === 0 && (el.textContent || "").trim() === "مسبحة السكينة"
+    );
+    if (!titleEl) return;
+
+    const card = titleEl.closest("section, article, div.rounded-3xl, div.rounded-2xl, div[class*='card'], div[class*='box']") || titleEl.parentElement;
+    if (!card) return;
+
+    muteSoundButton(card);
+
+    // ربط أزرار 33 و 100 و مفتوح الموجودة إن وُجدت
+    card.querySelectorAll("button").forEach(btn => {
+      const t = (btn.textContent || "").trim();
+      if (t === "33" && !btn.dataset.boundTarget) {
+        btn.dataset.boundTarget = "1";
+        btn.addEventListener("click", () => {
+          targetLimit = 33;
+          syncUI(card);
+        });
+      } else if (t === "100" && !btn.dataset.boundTarget) {
+        btn.dataset.boundTarget = "1";
+        btn.addEventListener("click", () => {
+          targetLimit = 100;
+          syncUI(card);
+        });
+      } else if (t === "مفتوح" && !btn.dataset.boundTarget) {
+        btn.dataset.boundTarget = "1";
+        btn.addEventListener("click", () => {
+          targetLimit = null;
+          syncUI(card);
+        });
+      }
+    });
+
+    if (!card.querySelector(".sakina-target-box")) {
+      const box = document.createElement("div");
+      box.className = "sakina-target-box";
+      box.innerHTML = `
+        <span class="sakina-target-label">التوقف عند رقم:</span>
+        <div class="sakina-target-controls">
+          <input type="number" min="1" step="1" value="33" class="sakina-target-input" aria-label="العدد الذي يوقف العداد" placeholder="مثال: 50" />
+          <button type="button" class="sakina-target-apply is-active">تثبيت</button>
+          <button type="button" class="sakina-target-open">مفتوح</button>
+        </div>
+      `;
+
+      const input = box.querySelector(".sakina-target-input");
+      const applyBtn = box.querySelector(".sakina-target-apply");
+      const openBtn = box.querySelector(".sakina-target-open");
+
+      function applyInputValue() {
+        const val = parseInt(input.value, 10);
+        if (!isNaN(val) && val > 0) {
+          targetLimit = val;
+          syncUI(card);
+        }
+      }
+
+      applyBtn.addEventListener("click", applyInputValue);
+      input.addEventListener("change", applyInputValue);
+      input.addEventListener("keydown", e => {
+        if (e.key === "Enter") applyInputValue();
+      });
+      openBtn.addEventListener("click", () => {
+        targetLimit = null;
+        input.value = "";
+        syncUI(card);
+      });
+
+      const resetBtn = Array.from(card.querySelectorAll("button")).find(b => (b.textContent || "").includes("تصفير"));
+      if (resetBtn && resetBtn.parentElement) {
+        resetBtn.parentElement.insertAdjacentElement("afterend", box);
+      } else {
+        card.appendChild(box);
+      }
+    }
+
+    syncUI(card);
+  }
+
+  function syncUI(card) {
+    if (!card) return;
+    const input = card.querySelector(".sakina-target-input");
+    const applyBtn = card.querySelector(".sakina-target-apply");
+    const openBtn = card.querySelector(".sakina-target-open");
+
+    if (targetLimit === null) {
+      if (openBtn) openBtn.classList.add("is-active");
+      if (applyBtn) applyBtn.classList.remove("is-active");
+    } else {
+      if (applyBtn) applyBtn.classList.add("is-active");
+      if (openBtn) openBtn.classList.remove("is-active");
+      if (input && document.activeElement !== input) {
+        input.value = String(targetLimit);
+      }
+    }
+    updateTargetDisplay(card);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", enforceCustomTarget);
+  } else {
+    enforceCustomTarget();
+  }
+  setInterval(() => {
+    const titleEl = Array.from(document.querySelectorAll("h1, h2, h3, h4, p, span, div")).find(
+      el => el.children.length === 0 && (el.textContent || "").trim() === "مسبحة السكينة"
+    );
+    if (titleEl) {
+      const card = titleEl.closest("section, article, div.rounded-3xl, div.rounded-2xl, div[class*='card'], div[class*='box']") || titleEl.parentElement;
+      muteSoundButton(card);
+      updateTargetDisplay(card);
+    }
+  }, 600);
 })();
 </script>
 
