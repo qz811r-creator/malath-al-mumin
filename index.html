@@ -196,23 +196,7 @@
 </style>
 
 
-<style id="sakina-writing-therapy-theme">
-  .sakina-writing-card {
-    background-color: #f6e8dc !important;
-    border-color: #e6cdb7 !important;
-    color: #8c5a2b !important;
-    border-radius: 24px;
-  }
-  .sakina-writing-card svg {
-    width: 34px;
-    height: 34px;
-    stroke: #945f2e;
-    fill: none;
-    stroke-width: 2.1;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
-</style>
+
 
 
 <style id="sakina-hero-logo-style">
@@ -228,6 +212,25 @@
     width: 100%;
     height: 100%;
     display: block;
+  }
+</style>
+
+
+<style id="sakina-writing-therapy-theme">
+  .sakina-writing-card {
+    background-color: #e5ece6 !important;
+    border-color: #c8d8cb !important;
+    color: #3f5b45 !important;
+    border-radius: 24px;
+  }
+  .sakina-writing-card svg {
+    width: 34px;
+    height: 34px;
+    stroke: #4f6f56;
+    fill: none;
+    stroke-width: 2.1;
+    stroke-linecap: round;
+    stroke-linejoin: round;
   }
 </style>
 
@@ -1523,57 +1526,7 @@
 </script>
 
 
-<script id="sakina-writing-therapy-engine">
-(function () {
-  const journalHeartSvg = `<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2.5"/><path d="M5 17h14"/><path d="M12 12.6s-2.7-1.8-2.7-3.5a1.55 1.55 0 0 1 2.7-1 1.55 1.55 0 0 1 2.7 1c0 1.7-2.7 3.5-2.7 3.5z"/></svg>`;
 
-  function applyWritingTherapyCard() {
-    // 1) إزالة كلمة "التأمل" من البطاقات والعناوين المرتبطة بها دون المساس بباقي الصفحة
-    const allEls = Array.from(document.querySelectorAll("span, p, h1, h2, h3, h4, div, button, a"));
-    allEls.forEach(el => {
-      if (el.children.length === 0 && el.textContent && el.textContent.trim() === "التأمل") {
-        const parentCard = el.closest(".sakina-card, [class*='card'], [class*='box']");
-        if (parentCard && !parentCard.textContent.includes("ملاذ المؤمن") && !parentCard.textContent.includes("سورة ")) {
-          el.remove();
-        }
-      }
-    });
-
-    // 2) تطبيق الشعار واللون لبطاقة "العلاج بالكتابة" إن وُجدت
-    const candidates = Array.from(document.querySelectorAll("span, p, h1, h2, h3, h4, div, button, a")).filter(
-      el => el.textContent && el.textContent.includes("العلاج بالكتابة")
-    );
-
-    candidates.forEach(el => {
-      const card = el.closest(".sakina-card, [class*='card'], [class*='box'], button, a") || el.parentElement;
-      if (!card) return;
-      const fullTxt = card.textContent || "";
-      if (fullTxt.includes("ملاذ المؤمن") || fullTxt.includes("سورة ")) return;
-
-      card.classList.add("sakina-writing-card");
-      card.style.backgroundColor = "#f6e8dc";
-      card.style.borderColor = "#e6cdb7";
-      card.style.color = "#8c5a2b";
-
-      // استبدال أو إضافة الأيقونة إذا لم تكن موجودة داخل البطاقة
-      const existingSvg = card.querySelector("svg");
-      if (existingSvg) {
-        existingSvg.outerHTML = journalHeartSvg;
-      } else {
-        const wrap = document.createElement("div");
-        wrap.innerHTML = journalHeartSvg;
-        card.insertBefore(wrap.firstChild, card.firstChild);
-      }
-    });
-  }
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", applyWritingTherapyCard);
-  } else {
-    applyWritingTherapyCard();
-  }
-})();
-</script>
 
 
 <script id="sakina-hero-logo-script">
@@ -1634,6 +1587,55 @@
     document.addEventListener("DOMContentLoaded", placeSakinaHeroLogo);
   } else {
     placeSakinaHeroLogo();
+  }
+})();
+</script>
+
+
+<script id="sakina-writing-therapy-engine">
+(function () {
+  const journalHeartSvg = `<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2.5"/><path d="M5 17h14"/><path d="M12 12.6s-2.7-1.8-2.7-3.5a1.55 1.55 0 0 1 2.7-1 1.55 1.55 0 0 1 2.7 1c0 1.7-2.7 3.5-2.7 3.5z"/></svg>`;
+
+  function applyWritingTherapyGreen() {
+    document.querySelectorAll("span, p, h1, h2, h3, h4, div, button, a").forEach(el => {
+      if (el.children.length === 0 && el.textContent && el.textContent.trim() === "التأمل") {
+        const parentCard = el.closest(".sakina-card, [class*='card'], [class*='box']");
+        if (parentCard && !parentCard.textContent.includes("ملاذ المؤمن") && !parentCard.textContent.includes("سورة ")) {
+          el.remove();
+        }
+      }
+    });
+
+    const candidates = Array.from(document.querySelectorAll("span, p, h1, h2, h3, h4, div, button, a")).filter(
+      el => el.textContent && el.textContent.includes("العلاج بالكتابة")
+    );
+
+    candidates.forEach(el => {
+      const card = el.closest(".sakina-card, [class*='card'], [class*='box'], button, a") || el.parentElement;
+      if (!card) return;
+      const fullTxt = card.textContent || "";
+      if (fullTxt.includes("ملاذ المؤمن") || fullTxt.includes("سورة ")) return;
+
+      card.classList.add("sakina-writing-card");
+      card.style.backgroundColor = "#e5ece6";
+      card.style.borderColor = "#c8d8cb";
+      card.style.color = "#3f5b45";
+
+      const existingSvg = card.querySelector("svg");
+      if (existingSvg) {
+        existingSvg.outerHTML = journalHeartSvg;
+      } else {
+        const wrap = document.createElement("div");
+        wrap.innerHTML = journalHeartSvg;
+        card.insertBefore(wrap.firstChild, card.firstChild);
+      }
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", applyWritingTherapyGreen);
+  } else {
+    applyWritingTherapyGreen();
   }
 })();
 </script>
