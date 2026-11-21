@@ -234,6 +234,13 @@
   }
 </style>
 
+
+<style id="sakina-hide-bottom-breath-timer">
+  .sakina-breath-timer {
+    display: none !important;
+  }
+</style>
+
 </head>
 <body class="min-h-screen p-4 py-8 text-slate-800">
 
@@ -1637,6 +1644,43 @@
   } else {
     applyWritingTherapyGreen();
   }
+})();
+</script>
+
+
+<script id="sakina-remove-bottom-breath-timer">
+(function () {
+  function cleanBottomBreathCounter() {
+    // 1) إزالة أي عنصر يحمل كلاس sakina-breath-timer
+    document.querySelectorAll(".sakina-breath-timer").forEach(el => el.remove());
+
+    // 2) إزالة أي عنصر نصي يقع مباشرة بعد زر البدء/الإيقاف في قسم تنفس الطمأنينة
+    const buttons = Array.from(document.querySelectorAll("button"));
+    const sessionBtn = buttons.find(b =>
+      b.textContent && (b.textContent.includes("إيقاف الجلسة") || b.textContent.includes("بدء التنفس") || b.textContent.includes("ابدأ الجلسة"))
+    );
+
+    if (sessionBtn) {
+      let next = sessionBtn.nextElementSibling;
+      while (next) {
+        const txt = (next.textContent || "").trim();
+        if (txt.includes("العداد") || /^(شهيق|إمساك|زفير|احبس)/.test(txt) || next.classList.contains("sakina-breath-timer")) {
+          const toRemove = next;
+          next = next.nextElementSibling;
+          toRemove.remove();
+        } else {
+          next = next.nextElementSibling;
+        }
+      }
+    }
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", cleanBottomBreathCounter);
+  } else {
+    cleanBottomBreathCounter();
+  }
+  setInterval(cleanBottomBreathCounter, 800);
 })();
 </script>
 
