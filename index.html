@@ -2469,5 +2469,35 @@
 })();
 </script>
 
+
+<script id="sakina-remove-stop-bar-script">
+(function () {
+  function removeStopBar() {
+    Array.from(document.querySelectorAll(".sakina-stop-control, .sakina-target-bar, .sakina-target-row")).forEach(el => {
+      el.remove();
+    });
+
+    Array.from(document.querySelectorAll("div, section, span, p")).forEach(el => {
+      const txt = (el.textContent || "").trim();
+      if (
+        txt.includes("التوقف عند رقم:") &&
+        txt.includes("تثبيت") &&
+        txt.includes("مفتوح") &&
+        txt.length < 140
+      ) {
+        el.remove();
+      }
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", removeStopBar);
+  } else {
+    removeStopBar();
+  }
+  setTimeout(removeStopBar, 200);
+})();
+</script>
+
 </body>
 </html>
