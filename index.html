@@ -561,7 +561,7 @@
         <!-- ==================== LEFT COLUMN: WRITING THERAPY ==================== -->
         <aside class="lg:col-span-3 bg-white/90 backdrop-blur-md rounded-3xl shadow-lg border border-white p-5 space-y-4">
             <div class="border-b border-slate-100 pb-3 text-center">
-                <h2 class="text-lg font-bold text-slate-800"> العلاج بالكتابة</h2>
+                <h2 class="text-lg font-bold text-slate-800"> دفتر التأمل</h2>
                 <p class="text-xs text-slate-500 mt-0.5">دفتر تأمل هادئ وخاص بك في متصفحك</p>
             </div>
 
@@ -1760,7 +1760,7 @@
     });
 
     const candidates = Array.from(document.querySelectorAll("span, p, h1, h2, h3, h4, div, button, a")).filter(
-      el => el.textContent && el.textContent.includes("العلاج بالكتابة")
+      el => el.textContent && el.textContent.includes("دفتر التأمل")
     );
 
     candidates.forEach(el => {
@@ -1934,7 +1934,7 @@
 (function () {
   function applyBreathToneToWriting() {
     const titleNode = Array.from(document.querySelectorAll("h1, h2, h3, h4, p, span, div")).find(
-      el => el.children.length === 0 && el.textContent && el.textContent.trim() === "العلاج بالكتابة"
+      el => el.children.length === 0 && el.textContent && el.textContent.trim() === "دفتر التأمل"
     );
     if (!titleNode) return;
 
@@ -2262,6 +2262,27 @@
       updateTargetDisplay(card);
     }
   }, 600);
+})();
+</script>
+
+
+<script id="sakina-rename-writing-to-notebook-script">
+(function () {
+  function renameWritingTitle() {
+    const nodes = Array.from(document.querySelectorAll("h1, h2, h3, h4, h5, h6, p, span, div, label, button, a"));
+    nodes.forEach(el => {
+      if (el.children.length === 0 && typeof el.textContent === "string" && el.textContent.includes("العلاج بالكتابة")) {
+        el.textContent = el.textContent.replace(/العلاج بالكتابة/g, "دفتر التأمل");
+      }
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", renameWritingTitle);
+  } else {
+    renameWritingTitle();
+  }
+  setTimeout(renameWritingTitle, 250);
 })();
 </script>
 
