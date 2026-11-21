@@ -1251,5 +1251,32 @@
 })();
 </script>
 
+
+<script id="sakina-jabr-only-script">
+(function () {
+  const jabrSvg = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-4.5-9-9.5C1.5 7.8 4.5 4.5 8 5.2c1.7.3 3 1.4 4 2.8 1-1.4 2.3-2.5 4-2.8 3.5-.7 6.5 2.6 5 6.3-2 5-9 9.5-9 9.5z"/><path d="M9.5 12.5l2 2 3.5-3.5"/></svg>`;
+  const hiddenLabels = ["السكينة", "التأمل", "النمو", "التنفس", "افهم شعورك"];
+
+  document.querySelectorAll(".sakina-card").forEach(card => {
+    const label = (card.textContent || "").trim();
+    if (label.includes("رسالة الجبر")) {
+      card.classList.add("card-purple");
+      card.style.display = "";
+      card.style.removeProperty("height");
+      card.style.removeProperty("min-height");
+      card.innerHTML = `${jabrSvg}<span>رسالة الجبر</span>`;
+    } else if (hiddenLabels.some(item => label.includes(item))) {
+      card.remove();
+    }
+  });
+
+  const grid = document.querySelector(".sakina-grid");
+  if (grid) {
+    grid.style.gridTemplateColumns = "minmax(0, 1fr)";
+    grid.style.maxWidth = "420px";
+  }
+})();
+</script>
+
 </body>
 </html>
