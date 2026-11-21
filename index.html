@@ -1382,5 +1382,109 @@
 })();
 </script>
 
+
+<script id="sakina-safe-jabr-merge">
+(function () {
+  const pool = [];
+
+  function addUnique(text) {
+    if (!text) return;
+    const clean = text.replace(/\s+/g, " ").trim();
+    if (
+      clean.length > 12 &&
+      !clean.includes("رسالة جبر فورية") &&
+      !clean.includes("اضغط لتصلك كلمة طمأنينة") &&
+      !clean.includes("أرسل لي رسالة") &&
+      !pool.includes(clean)
+    ) {
+      pool.push(clean);
+    }
+  }
+
+  // 1) جمع أي رسائل موجودة داخل حاوية رسالة جبر فورية، وإخفاء الحاوية البرتقالية فقط
+  const instantNodes = Array.from(document.querySelectorAll("h1, h2, h3, h4, p, span, div, button, label")).filter(
+    el => el.textContent && el.textContent.includes("رسالة جبر فورية")
+  );
+
+  instantNodes.forEach(node => {
+    const box = node.closest("section, article, div.rounded-3xl, div.rounded-2xl, div.rounded-xl, [class*='card'], [class*='box']") || node.parentElement;
+    if (!box) return;
+
+    // أمان: لا نخفي أبداً حاوية تحتوي على العنوان الرئيسي "ملاذ المؤمن" أو بطاقة الآية
+    const fullText = box.textContent || "";
+    if (fullText.includes("ملاذ المؤمن") || fullText.includes("سورة ")) return;
+
+    box.querySelectorAll("p, blockquote, li").forEach(item => addUnique(item.textContent));
+    box.style.display = "none";
+    box.setAttribute("aria-hidden", "true");
+  });
+
+  // 2) إضافة مجموعة متنوعة من رسائل الجبر والطمأنينة في حال كانت القائمة قصيرة
+  const richMessages = [
+    "ما تأخر خيرٌ ساقه الله إليك، وما ضاع سعيٌ أودعته صدقك وطمأنينتك.",
+    "كل خطوة هادئة تخطوها اليوم تقرّبك من اتزانك؛ لا تستعجل ثمار الصبر.",
+    "الله يجبر خاطر من توكّل عليه، ويفتح له من أبواب الطمأنينة ما لا يحتسب.",
+    "خذ نفساً عميقاً؛ ما يثقل صدرك اليوم قد يكون بداية فرجٍ قريب لا تراه العين بعد.",
+    "ربّ جبرٍ خفيّ يأتي في وقته تماماً ليردّ لقلبك سكينته ويطمئن خطاك.",
+    "لا تستهِن بخطوة صغيرة تحفظ بها هدوءك؛ فالثبات الهادئ يصنع أثراً بعيداً.",
+    "قد يطول الطريق قليلاً لتهيئة قلبك لما هو أجمل وأرسخ مما توقعت.",
+    "سكينة القلب تبدأ حين تكل أمرك لله ثم تمنح نفسك حقّ الهدوء والرفق."
+  ];
+  richMessages.forEach(addUnique);
+
+  if (Array.isArray(window.jabrMessages)) {
+    window.jabrMessages.forEach(addUnique);
+    pool.forEach(m => {
+      if (!window.jabrMessages.includes(m)) window.jabrMessages.push(m);
+    });
+  }
+
+  window.sakinaCombinedJabrPool = pool;
+
+  // 3) عرض رسالة متجددة داخل منطقة رسالة الجبر عند الطلب دون العبث بالبطاقة الصغيرة في الشبكة
+  let idx = 0;
+  function showNextJabrMessage() {
+    if (!pool.length) return;
+    const msg = pool[idx % pool.length];
+    idx += 1;
+
+    const jabrAreas = Array.from(document.querySelectorAll("section, article, div")).filter(el => {
+      if (el.classList.contains("sakina-card") || el.closest(".sakina-grid")) return false;
+      const t = el.textContent || "";
+      return t.includes("رسالة الجبر") && !t.includes("ملاذ المؤمن");
+    });
+
+    const targetArea = jabrAreas[jabrAreas.length - 1] || document.body;
+    let displayEl = targetArea.querySelector("[data-sakina-jabr-output='1']");
+    if (!displayEl) {
+      displayEl = document.createElement("p");
+      displayEl.setAttribute("data-sakina-jabr-output", "1");
+      displayEl.style.marginTop = "12px";
+      displayEl.style.padding = "12px 16px";
+      displayEl.style.borderRadius = "16px";
+      displayEl.style.backgroundColor = "#ebe4f3";
+      displayEl.style.color = "#5b4b70";
+      displayEl.style.fontWeight = "600";
+      displayEl.style.lineHeight = "1.8";
+      targetArea.appendChild(displayEl);
+    }
+    displayEl.textContent = msg;
+  }
+
+  // ربط أزرار الجبر إن وُجدت
+  document.querySelectorAll("button, [role='button']").forEach(btn => {
+    const label = (btn.textContent || "").trim();
+    if (label.includes("رسالة جديدة") || label.includes("أرسل لي رسالة") || label.includes("رسالة جبر")) {
+      if (btn.dataset.sakinaSafeBound) return;
+      btn.dataset.sakinaSafeBound = "1";
+      btn.addEventListener("click", function (e) {
+        if (label.includes("أرسل لي رسالة")) e.preventDefault();
+        showNextJabrMessage();
+      });
+    }
+  });
+})();
+</script>
+
 </body>
 </html>
