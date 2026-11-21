@@ -112,6 +112,66 @@
   }
 </style>
 
+
+<style id="sakina-jabr-theme">
+  /* تنسيق قسم/مربّع رسالة الجبر باللون البنفسجي الليلكي الهادئ */
+  #jabr-section, .jabr-box, .jabr-card, [data-section="jabr"] {
+    background-color: #ebe4f3 !important;
+    border-color: #d6c8e8 !important;
+    color: #5b4b70 !important;
+    border-radius: 24px;
+  }
+  .sakina-jabr-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background-color: #6a5682;
+    color: #ffffff;
+    border: none;
+    border-radius: 999px;
+    padding: 10px 22px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(106, 86, 130, 0.22);
+    transition: transform 0.15s ease, background-color 0.2s ease;
+  }
+  .sakina-jabr-trigger:hover {
+    background-color: #57456d;
+    transform: translateY(-1px);
+  }
+  .sakina-jabr-trigger svg {
+    width: 22px;
+    height: 22px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .sakina-jabr-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #dfd3ee;
+    color: #5b4b70;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+  }
+  .sakina-jabr-badge svg {
+    width: 20px;
+    height: 20px;
+    stroke: #6a5682;
+    fill: none;
+    stroke-width: 2.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+</style>
+
 </head>
 <body class="min-h-screen p-4 py-8 text-slate-800">
 
@@ -1037,6 +1097,93 @@
     document.addEventListener("DOMContentLoaded", enhanceBreathingUI);
   } else {
     enhanceBreathingUI();
+  }
+})();
+</script>
+
+
+<script id="sakina-jabr-engine">
+(function () {
+  const jabrSvg = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-4.5-9-9.5C1.5 7.8 4.5 4.5 8 5.2c1.7.3 3 1.4 4 2.8 1-1.4 2.3-2.5 4-2.8 3.5-.7 6.5 2.6 5 6.3-2 5-9 9.5-9 9.5z"/><path d="M9.5 12.5l2 2 3.5-3.5"/></svg>`;
+
+  const jabrMessages = [
+    "ما تأخر خيرٌ ساقه الله إليك، وما ضاع سعيٌ أودعته صدقك وطمأنينتك.",
+    "كل خطوة هادئة تخطوها اليوم تقرّبك من اتزانك؛ لا تستعجل ثمار الصبر.",
+    "الله يجبر خاطر من توكّل عليه، ويفتح له من أبواب الطمأنينة ما لا يحتسب.",
+    "خذ نفساً عميقاً؛ ما يثقل صدرك اليوم قد يكون بداية فرجٍ قريب لا تراه العين بعد."
+  ];
+
+  function enhanceJabrUI() {
+    const headings = Array.from(document.querySelectorAll("h1, h2, h3, h4, p, span, div, button"));
+    const targetHeading = headings.find(el =>
+      el.children.length === 0 &&
+      el.textContent &&
+      el.textContent.includes("رسالة الجبر")
+    );
+
+    if (!targetHeading) return;
+
+    // تجنّب بطاقة الشبكة الصغيرة إذا وجد قسم/بطاقة محتوى أكبر
+    let container = targetHeading.closest("section, article, [id*='jabr'], [class*='jabr'], [class*='card'], [class*='box']");
+    if (container && container.classList.contains("sakina-card")) {
+      container = null;
+    }
+    if (!container) {
+      container = targetHeading.parentElement;
+    }
+
+    if (container && !container.dataset.sakinaJabrStyled) {
+      container.dataset.sakinaJabrStyled = "1";
+      container.style.backgroundColor = "#ebe4f3";
+      container.style.borderColor = "#d6c8e8";
+      container.style.color = "#5b4b70";
+
+      // إضافة شارة الشعار في أعلى القسم إذا لم تكن موجودة
+      if (!container.querySelector(".sakina-jabr-badge")) {
+        const badge = document.createElement("div");
+        badge.className = "sakina-jabr-badge";
+        badge.innerHTML = `${jabrSvg}<span>رسالة الجبر</span>`;
+        container.insertBefore(badge, container.firstChild);
+      }
+
+      // البحث عن زر داخل القسم أو إنشاء زر بشعار رسالة الجبر لتبديل/تحديث الرسالة
+      let actionBtn = container.querySelector("button");
+      let msgBox = Array.from(container.querySelectorAll("p, blockquote, div")).find(el =>
+        el !== container &&
+        el.children.length === 0 &&
+        el.textContent.trim().length > 15 &&
+        !el.textContent.includes("رسالة الجبر")
+      );
+
+      if (!msgBox) {
+        msgBox = document.createElement("p");
+        msgBox.style.margin = "12px 0";
+        msgBox.style.fontWeight = "600";
+        msgBox.style.lineHeight = "1.8";
+        msgBox.textContent = jabrMessages[0];
+        container.appendChild(msgBox);
+      }
+
+      let idx = 0;
+      if (!actionBtn) {
+        actionBtn = document.createElement("button");
+        actionBtn.type = "button";
+        container.appendChild(actionBtn);
+      }
+
+      actionBtn.classList.add("sakina-jabr-trigger");
+      actionBtn.innerHTML = `${jabrSvg}<span>رسالة جديدة</span>`;
+      actionBtn.addEventListener("click", function () {
+        idx = (idx + 1) % jabrMessages.length;
+        msgBox.textContent = jabrMessages[idx];
+      });
+    }
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", enhanceJabrUI);
+  } else {
+    enhanceJabrUI();
   }
 })();
 </script>
