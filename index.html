@@ -436,6 +436,9 @@
 
 
 
+
+
+
 <style id="sakina-start-screen-style">
   #sakina-start-gateway {
     position: fixed;
@@ -2622,6 +2625,18 @@
 
 
 
+
+  </div>
+
+  <div class="sakina-gw-bottom">
+    <button type="button" id="sakina-start-btn">ابدأ رحلتك الآن</button>
+  </div>
+</div>
+
+
+
+
+
 <div id="sakina-start-gateway" dir="rtl" role="dialog" aria-label="صفحة البداية ملاذ المؤمن">
   <div class="sakina-gw-top">
     <div class="sakina-gw-lines" aria-hidden="true">
@@ -2664,8 +2679,22 @@
 
 <script id="sakina-start-screen-script">
 (function () {
-  if (window.__sakinaStartGatewayFixed) return;
-  window.__sakinaStartGatewayFixed = true;
+  if (window.__sakinaStartGatewayClean) return;
+  window.__sakinaStartGatewayClean = true;
+
+  function cleanDuplicateStartButtons() {
+    const gw = document.getElementById("sakina-start-gateway");
+    document.querySelectorAll("button, a, [role='button']").forEach(el => {
+      const txt = (el.textContent || "").trim();
+      if (txt.includes("ابدأ رحلتك الآن") && (!gw || !gw.contains(el))) {
+        el.remove();
+      }
+    });
+    if (gw) {
+      const insideBtns = Array.from(gw.querySelectorAll("button"));
+      insideBtns.slice(1).forEach(b => b.remove());
+    }
+  }
 
   function purgeStopCounter() {
     document.querySelectorAll(".sakina-stop-control, .sakina-target-bar, .sakina-target-row").forEach(el => {
@@ -2688,6 +2717,7 @@
       gw.style.setProperty("visibility", "hidden", "important");
       gw.style.setProperty("pointer-events", "none", "important");
     }
+    cleanDuplicateStartButtons();
     purgeStopCounter();
     window.scrollTo({ top: 0, behavior: "instant" });
   }
@@ -2701,16 +2731,18 @@
     }
   }, true);
 
-  const observer = new MutationObserver(function () {
+  function runCleanup() {
+    cleanDuplicateStartButtons();
     purgeStopCounter();
-  });
+  }
 
+  const observer = new MutationObserver(runCleanup);
   if (document.body) {
-    purgeStopCounter();
+    runCleanup();
     observer.observe(document.body, { childList: true, subtree: true });
   } else {
     document.addEventListener("DOMContentLoaded", function () {
-      purgeStopCounter();
+      runCleanup();
       observer.observe(document.body, { childList: true, subtree: true });
     });
   }
