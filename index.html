@@ -560,6 +560,19 @@
   }
 </style>
 
+
+<style id="sakina-site-bg-style">
+  body.sakina-site-themed {
+    background-attachment: fixed !important;
+    background-size: cover !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+    background-image:
+      linear-gradient(180deg, rgba(246, 243, 251, 0.86) 0%, rgba(196, 184, 222, 0.82) 55%, rgba(154, 138, 188, 0.86) 100%),
+      url("https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?auto=format&fit=crop&w=1400&q=80") !important;
+  }
+</style>
+
 </head>
 <body class="min-h-screen p-4 py-8 text-slate-800">
 
@@ -2746,6 +2759,27 @@
       observer.observe(document.body, { childList: true, subtree: true });
     });
   }
+})();
+</script>
+
+
+<script id="sakina-site-bg-script">
+(function () {
+  if (window.__sakinaSiteBgInit) return;
+  window.__sakinaSiteBgInit = true;
+
+  function applySiteBg() {
+    if (document.body && !document.body.classList.contains("sakina-site-themed")) {
+      document.body.classList.add("sakina-site-themed");
+    }
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", applySiteBg);
+  } else {
+    applySiteBg();
+  }
+  setTimeout(applySiteBg, 150);
 })();
 </script>
 
