@@ -433,11 +433,14 @@
 
 
 
+
+
+
 <style id="sakina-start-screen-style">
   #sakina-start-gateway {
     position: fixed;
     inset: 0;
-    z-index: 9999;
+    z-index: 99999;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -447,12 +450,12 @@
     color: #ffffff;
     padding: 20px 18px 26px 18px;
     overflow-y: auto;
-    transition: opacity 0.28s ease, visibility 0.28s ease;
   }
-  #sakina-start-gateway.is-hidden {
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
+  #sakina-start-gateway.sakina-gateway-closed {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    opacity: 0 !important;
   }
   .sakina-gw-top {
     display: flex;
@@ -2607,6 +2610,18 @@
 
 
 
+
+  </div>
+
+  <div class="sakina-gw-bottom">
+    <button type="button" id="sakina-start-btn">ابدأ رحلتك الآن</button>
+  </div>
+</div>
+
+
+
+
+
 <div id="sakina-start-gateway" dir="rtl" role="dialog" aria-label="صفحة البداية ملاذ المؤمن">
   <div class="sakina-gw-top">
     <div class="sakina-gw-lines" aria-hidden="true">
@@ -2649,8 +2664,8 @@
 
 <script id="sakina-start-screen-script">
 (function () {
-  if (window.__sakinaStartGatewayInit) return;
-  window.__sakinaStartGatewayInit = true;
+  if (window.__sakinaStartGatewayFixed) return;
+  window.__sakinaStartGatewayFixed = true;
 
   function purgeStopCounter() {
     document.querySelectorAll(".sakina-stop-control, .sakina-target-bar, .sakina-target-row").forEach(el => {
@@ -2665,26 +2680,40 @@
     });
   }
 
-  function bindStartGateway() {
-    purgeStopCounter();
+  function openMainSite() {
     const gw = document.getElementById("sakina-start-gateway");
-    const btn = document.getElementById("sakina-start-btn");
-    if (!gw || !btn) return;
+    if (gw) {
+      gw.classList.add("sakina-gateway-closed");
+      gw.style.setProperty("display", "none", "important");
+      gw.style.setProperty("visibility", "hidden", "important");
+      gw.style.setProperty("pointer-events", "none", "important");
+    }
+    purgeStopCounter();
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }
 
-    btn.addEventListener("click", function () {
-      gw.classList.add("is-hidden");
+  document.addEventListener("click", function (ev) {
+    const btn = ev.target && ev.target.closest("#sakina-start-btn");
+    if (btn) {
+      ev.preventDefault();
+      ev.stopPropagation();
+      openMainSite();
+    }
+  }, true);
+
+  const observer = new MutationObserver(function () {
+    purgeStopCounter();
+  });
+
+  if (document.body) {
+    purgeStopCounter();
+    observer.observe(document.body, { childList: true, subtree: true });
+  } else {
+    document.addEventListener("DOMContentLoaded", function () {
       purgeStopCounter();
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      observer.observe(document.body, { childList: true, subtree: true });
     });
   }
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", bindStartGateway);
-  } else {
-    bindStartGateway();
-  }
-  setTimeout(purgeStopCounter, 250);
-  setTimeout(purgeStopCounter, 800);
 })();
 </script>
 
