@@ -2986,6 +2986,8 @@
 
 <style id="sakina-clean-layout-css">
   /* إخفاء زر رسالة جديدة والعناصر المكررة */
+  .sakina-grid,
+  .sakina-card.card-purple,
   .sakina-jabr-trigger,
   button[onclick*="showRandomJabir"],
   #jabir-card-box {
@@ -3029,7 +3031,7 @@
     }
 
     // 3. إزالة أي بطاقات جبر مكررة قديمة في الصفحة
-    document.querySelectorAll('[data-sakina-card="jabr"], .sakina-jabr-tap-prompt').forEach(el => el.remove());
+    document.querySelectorAll('[data-sakina-card="jabr"], .sakina-jabr-tap-prompt, .sakina-card.card-purple, #sakina-cards-section').forEach(el => el.remove());
     document.querySelectorAll('aside > div, main > div').forEach(box => {
       if (box.id !== 'sakina-unified-jabr' && box.id !== 'welcome-banner' && box.id !== 'result-box') {
         const txt = box.textContent || '';
