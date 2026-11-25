@@ -576,6 +576,22 @@
 </head>
 <body class="min-h-screen p-4 py-8 text-slate-800">
 
+    <!-- Supabase Auth Bar -->
+    <div class="max-w-[1440px] mx-auto mb-4 flex flex-wrap items-center justify-between gap-3 bg-white/90 backdrop-blur-md rounded-2xl px-5 py-3 shadow-sm border border-white">
+        <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-teal-500"></span>
+            <span id="auth-user-label" class="text-xs font-bold text-slate-700">وضع التصفح الحر (سجّل دخولك لحفظ تأملاتك وتسبيحك سحابياً)</span>
+        </div>
+        <div id="auth-forms" class="flex flex-wrap items-center gap-2">
+            <input id="auth-email" type="email" placeholder="البريد الإلكتروني" class="rounded-xl border border-slate-200 px-3 py-1.5 text-xs focus:outline-none focus:border-teal-400">
+            <input id="auth-pass" type="password" placeholder="كلمة المرور" class="rounded-xl border border-slate-200 px-3 py-1.5 text-xs focus:outline-none focus:border-teal-400">
+            <button onclick="handleAuth('login')" class="px-3.5 py-1.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold transition-all">دخول</button>
+            <button onclick="handleAuth('signup')" class="px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all">حساب جديد</button>
+        </div>
+        <button id="auth-logout-btn" onclick="handleLogout()" class="hidden px-3.5 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold transition-all">تسجيل خروج</button>
+    </div>
+
+
     <!-- 3-Column Layout on Desktop, Stacked on Mobile -->
     <div class="max-w-[1440px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
@@ -677,6 +693,16 @@
             </div>
 
             <!-- Step 1: Main Categories -->
+            
+            <!-- AI Custom Feeling Input -->
+            <div class="mb-6 rounded-2xl bg-purple-50/70 border border-purple-200/80 p-4 shadow-sm">
+                <label for="ai-feeling-input" class="block text-xs font-bold text-purple-900 mb-2">✨ أو اكتب ما تشعر به الآن بكلماتك الخاصة ليواسيك القرآن:</label>
+                <div class="flex flex-col sm:flex-row gap-2">
+                    <input id="ai-feeling-input" type="text" placeholder="مثال: أشعر بضيق وتشتت وخوف من المستقبل..." class="flex-1 rounded-xl border border-purple-200 bg-white px-3.5 py-2 text-xs text-slate-700 focus:outline-none focus:border-purple-400">
+                    <button id="ai-feeling-btn" onclick="askAIForVerse()" class="px-4 py-2 rounded-xl bg-purple-700 hover:bg-purple-800 text-white text-xs font-bold shadow-sm transition-all whitespace-nowrap">استلهم آية ومواساة</button>
+                </div>
+            </div>
+
             <div id="main-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-3 fade-in">
                 <button onclick="selectCategory('anxious')" class="p-4 rounded-2xl bg-slate-50 hover:bg-teal-50 border border-slate-200/70 hover:border-teal-300 transition-all text-center group">
                     <span class="block text-3xl mb-1.5 group-hover:scale-110 transition-transform"></span>
@@ -2781,6 +2807,151 @@
   }
   setTimeout(applySiteBg, 150);
 })();
+</script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const SUPABASE_URL = 'https://ayamppfproniatjgyqho.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_W2zOk-Bd6nKRc2E9aDLPiQ_DNaB7_Yk';
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // تحديث واجهة المستخدم عند تسجيل الدخول أو الخروج
+  async function refreshAuthUI() {
+    const { data: { user } } = await sb.auth.getUser();
+    const label = document.getElementById('auth-user-label');
+    const forms = document.getElementById('auth-forms');
+    const logoutBtn = document.getElementById('auth-logout-btn');
+    if (user) {
+      label.textContent = 'مرحباً بك: ' + user.email + ' (حفظك السحابي مفعّل ✓)';
+      forms.classList.add('hidden');
+      logoutBtn.classList.remove('hidden');
+      loadCloudJournal(user.id);
+    } else {
+      label.textContent = 'وضع التصفح الحر (سجّل دخولك لحفظ تأملاتك وتسبيحك سحابياً)';
+      forms.classList.remove('hidden');
+      logoutBtn.classList.add('hidden');
+    }
+  }
+
+  async function handleAuth(mode) {
+    const email = document.getElementById('auth-email').value.trim();
+    const password = document.getElementById('auth-pass').value;
+    if (!email || !password) return alert('يرجى إدخال البريد الإلكتروني وكلمة المرور');
+    const res = mode === 'signup'
+      ? await sb.auth.signUp({ email, password })
+      : await sb.auth.signInWithPassword({ email, password });
+    if (res.error) return alert('تنبيه: ' + res.error.message);
+    if (mode === 'signup') alert('تم إنشاء الحساب! تم تسجيل دخولك بنجاح.');
+    refreshAuthUI();
+  }
+
+  async function handleLogout() {
+    await sb.auth.signOut();
+    refreshAuthUI();
+  }
+
+  // استدعاء الذكاء الاصطناعي لجلب الآية والمواساة
+  async function askAIForVerse() {
+    const input = document.getElementById('ai-feeling-input');
+    const btn = document.getElementById('ai-feeling-btn');
+    const feeling = input.value.trim();
+    if (!feeling) return alert('اكتب شعورك أولاً ليتم اختيار الآية المناسبة لك.');
+
+    btn.disabled = true;
+    btn.textContent = 'جاري البحث في كتاب الله...';
+
+    try {
+      const response = await fetch(`${SUPABASE_URL}/functions/v1/get-verse`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+        },
+        body: JSON.stringify({ userFeeling: feeling })
+      });
+      const data = await response.json();
+      if (data.verse) {
+        const resultBox = document.getElementById('result-box');
+        document.getElementById('selected-sub-label').textContent = 'بوحك: ' + feeling;
+        document.getElementById('verse-text').textContent = '﴿ ' + data.verse + ' ﴾';
+        document.getElementById('verse-ref').textContent = data.reference;
+        document.getElementById('reflection-text').textContent = data.message;
+        document.getElementById('psych-text').textContent = 'تذكّر أن اعترافك بشعورك وكتابته هو أول خطوة نحو السكينة والانشراح بإذن الله.';
+        resultBox.classList.remove('hidden');
+        resultBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+        // حفظ سجل الشعور في السحابة للمستخدم المسجل
+        const { data: { user } } = await sb.auth.getUser();
+        if (user) {
+          await sb.from('mood_history').insert([{
+            user_id: user.id,
+            category: 'AI_Custom',
+            sub_mood: feeling,
+            verse_ref: data.reference
+          }]);
+        }
+      } else {
+        alert('تعذر جلب الآية حالياً، حاول مرة أخرى.');
+      }
+    } catch (e) {
+      alert('حدث خطأ في الاتصال: ' + e.message);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'استلهم آية ومواساة';
+    }
+  }
+
+  // ربط حفظ دفتر التأمل بالسحابة مع الحفاظ على الحفظ المحلي
+  const origSaveJournal = window.saveJournal;
+  window.saveJournal = async function() {
+    if (typeof origSaveJournal === 'function') origSaveJournal();
+    const { data: { user } } = await sb.auth.getUser();
+    if (!user) return;
+    const statusEl = document.getElementById('journal-status');
+    const { error } = await sb.from('reflections').insert([{
+      user_id: user.id,
+      best_event: document.getElementById('j-highlights').value,
+      trait_1: document.getElementById('j-trait-1').value,
+      trait_2: document.getElementById('j-trait-2').value,
+      trait_3: document.getElementById('j-trait-3').value,
+      venting_note: document.getElementById('j-letter').value
+    }]);
+    if (!error && statusEl) {
+      statusEl.textContent = 'تم حفظ تأملاتك محلياً وفي السحابة بأمان ✓';
+    }
+  };
+
+  async function loadCloudJournal(userId) {
+    const { data } = await sb.from('reflections')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(1);
+    if (data && data[0]) {
+      if (!document.getElementById('j-highlights').value) document.getElementById('j-highlights').value = data[0].best_event || '';
+      if (!document.getElementById('j-trait-1').value) document.getElementById('j-trait-1').value = data[0].trait_1 || '';
+      if (!document.getElementById('j-trait-2').value) document.getElementById('j-trait-2').value = data[0].trait_2 || '';
+      if (!document.getElementById('j-trait-3').value) document.getElementById('j-trait-3').value = data[0].trait_3 || '';
+      if (!document.getElementById('j-letter').value) document.getElementById('j-letter').value = data[0].venting_note || '';
+    }
+  }
+
+  // حفظ التسبيح كل 10 تسبيحات في السحابة تلقائياً
+  const origIncrementTasbih = window.incrementTasbih;
+  window.incrementTasbih = async function() {
+    if (typeof origIncrementTasbih === 'function') origIncrementTasbih();
+    const count = parseInt(document.getElementById('tasbih-count').textContent || '0', 10);
+    if (count > 0 && count % 10 === 0) {
+      const { data: { user } } = await sb.auth.getUser();
+      if (user) {
+        const dhikr = document.getElementById('current-dhikr').textContent;
+        await sb.from('tasbih_logs').insert([{ user_id: user.id, dhikr_type: dhikr, count: count }]);
+      }
+    }
+  };
+
+  document.addEventListener('DOMContentLoaded', refreshAuthUI);
 </script>
 
 </body>
