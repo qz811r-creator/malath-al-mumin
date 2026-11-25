@@ -694,14 +694,7 @@
 
             <!-- Step 1: Main Categories -->
             
-            <!-- AI Custom Feeling Input -->
-            <div class="mb-6 rounded-2xl bg-purple-50/70 border border-purple-200/80 p-4 shadow-sm">
-                <label for="ai-feeling-input" class="block text-xs font-bold text-purple-900 mb-2">✨ أو اكتب ما تشعر به الآن بكلماتك الخاصة ليواسيك القرآن:</label>
-                <div class="flex flex-col sm:flex-row gap-2">
-                    <input id="ai-feeling-input" type="text" placeholder="مثال: أشعر بضيق وتشتت وخوف من المستقبل..." class="flex-1 rounded-xl border border-purple-200 bg-white px-3.5 py-2 text-xs text-slate-700 focus:outline-none focus:border-purple-400">
-                    <button id="ai-feeling-btn" onclick="askAIForVerse()" class="px-4 py-2 rounded-xl bg-purple-700 hover:bg-purple-800 text-white text-xs font-bold shadow-sm transition-all whitespace-nowrap">استلهم آية ومواساة</button>
-                </div>
-            </div>
+
 
             <div id="main-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-3 fade-in">
                 <button onclick="selectCategory('anxious')" class="p-4 rounded-2xl bg-slate-50 hover:bg-teal-50 border border-slate-200/70 hover:border-teal-300 transition-all text-center group">
@@ -734,6 +727,15 @@
                     <span class="text-sm md:text-base font-bold text-slate-700 block">امتنان وسكينة</span>
                     <span class="text-xs text-slate-400 mt-0.5 block">10 حالات دقيقة</span>
                 </button>
+            </div>
+
+                        <!-- AI Custom Feeling Input -->
+            <div class="mt-6 mb-4 rounded-2xl bg-purple-50/70 border border-purple-200/80 p-4 shadow-sm">
+                <label for="ai-feeling-input" class="block text-xs font-bold text-purple-900 mb-2">✨ أو اكتب ما تشعر به الآن بكلماتك الخاصة ليواسيك القرآن:</label>
+                <div class="flex flex-col sm:flex-row gap-2">
+                    <input id="ai-feeling-input" type="text" placeholder="مثال: أشعر بضيق وتشتت وخوف من المستقبل..." class="flex-1 rounded-xl border border-purple-200 bg-white px-3.5 py-2 text-xs text-slate-700 focus:outline-none focus:border-purple-400">
+                    <button id="ai-feeling-btn" onclick="askAIForVerse()" class="px-4 py-2 rounded-xl bg-purple-700 hover:bg-purple-800 text-white text-xs font-bold shadow-sm transition-all whitespace-nowrap">استلهم آية ومواساة</button>
+                </div>
             </div>
 
             <!-- Step 2: Sub-moods Selection -->
