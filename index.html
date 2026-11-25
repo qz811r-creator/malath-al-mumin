@@ -2894,7 +2894,7 @@
           }]);
         }
       } else {
-        alert('تعذر جلب الآية حالياً، حاول مرة أخرى.');
+        alert('تعذر جلب الآية: ' + (data.error || JSON.stringify(data)));
       }
     } catch (e) {
       alert('حدث خطأ في الاتصال: ' + e.message);
