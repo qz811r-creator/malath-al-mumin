@@ -633,13 +633,13 @@
                 <button id="breath-btn" onclick="toggleBreathing()" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all">ابدأ الجلسة</button>
             </div>
 
-            <!-- Random Jabir Message -->
-            <div class="rounded-2xl bg-amber-50/60 border border-amber-100 p-4 text-center">
-                <h3 class="text-sm font-bold text-amber-900 mb-1"> رسالة جبر فورية</h3>
-                <p id="random-jabir-text" class="text-xs text-slate-700 leading-relaxed min-h-[56px] flex items-center justify-center px-1 mb-2">
-                    اضغط لتصلك كلمة طمأنينة ولطف في أي لحظة.
-                </p>
-                <button onclick="showRandomJabir()" class="w-full py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition-all">أرسل لي رسالة</button>
+                        <!-- Locked Jabir Message -->
+            <div id="jabir-card-box" class="rounded-2xl bg-purple-50/70 border border-purple-200/80 p-4 text-center transition-all">
+                <h3 class="text-sm font-bold text-purple-950 mb-2">🔒 رسالة الجبر</h3>
+                <div id="jabir-locked-state" class="py-3 px-2 rounded-xl bg-white/80 border border-dashed border-purple-300 text-purple-800">
+                    <p class="text-xs font-bold leading-relaxed">اوصف شعورك أو اختر حالتك أولاً لتُفتح لك رسالة الجبر الخاصة بقلبك ✨</p>
+                </div>
+                <p id="random-jabir-text" class="hidden text-xs text-slate-700 leading-relaxed min-h-[56px] items-center justify-center px-2 py-2 bg-white rounded-xl border border-purple-100 shadow-sm"></p>
             </div>
         </aside>
 
@@ -2961,19 +2961,23 @@
   document.addEventListener('DOMContentLoaded', () => {
     const reflectionEl = document.getElementById('reflection-text');
     const jabirTextEl = document.getElementById('random-jabir-text');
+    const lockedStateEl = document.getElementById('jabir-locked-state');
 
     if (reflectionEl && jabirTextEl) {
-      const updateJabirBox = () => {
+      const unlockAndShowJabir = () => {
         const currentMessage = reflectionEl.textContent.trim();
         if (currentMessage) {
+          if (lockedStateEl) lockedStateEl.classList.add('hidden');
+          jabirTextEl.classList.remove('hidden');
+          jabirTextEl.classList.add('flex', 'fade-in');
           jabirTextEl.textContent = currentMessage;
-          jabirTextEl.classList.remove('fade-in');
-          void jabirTextEl.offsetWidth;
-          jabirTextEl.classList.add('fade-in');
+          
+          const titleEl = document.querySelector('#jabir-card-box h3');
+          if (titleEl) titleEl.textContent = '💌 رسالة الجبر لقلبك';
         }
       };
 
-      const observer = new MutationObserver(updateJabirBox);
+      const observer = new MutationObserver(unlockAndShowJabir);
       observer.observe(reflectionEl, { childList: true, characterData: true, subtree: true });
     }
   });
