@@ -2956,5 +2956,28 @@
   document.addEventListener('DOMContentLoaded', refreshAuthUI);
 </script>
 
+
+<script id="sync-jabir-with-verse">
+  document.addEventListener('DOMContentLoaded', () => {
+    const reflectionEl = document.getElementById('reflection-text');
+    const jabirTextEl = document.getElementById('random-jabir-text');
+
+    if (reflectionEl && jabirTextEl) {
+      const updateJabirBox = () => {
+        const currentMessage = reflectionEl.textContent.trim();
+        if (currentMessage) {
+          jabirTextEl.textContent = currentMessage;
+          jabirTextEl.classList.remove('fade-in');
+          void jabirTextEl.offsetWidth;
+          jabirTextEl.classList.add('fade-in');
+        }
+      };
+
+      const observer = new MutationObserver(updateJabirBox);
+      observer.observe(reflectionEl, { childList: true, characterData: true, subtree: true });
+    }
+  });
+</script>
+
 </body>
 </html>
