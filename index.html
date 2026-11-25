@@ -2983,5 +2983,106 @@
   });
 </script>
 
+
+<style id="sakina-clean-layout-css">
+  /* إخفاء زر رسالة جديدة والعناصر المكررة */
+  .sakina-jabr-trigger,
+  button[onclick*="showRandomJabir"],
+  #jabir-card-box {
+    display: none !important;
+  }
+  /* تنسيق بطاقة رسالة الجبر الموحدة تحت الترحيب */
+  #sakina-unified-jabr {
+    background-color: #f3eff8 !important;
+    border: 1px solid #e1d8ec !important;
+    border-radius: 24px !important;
+    padding: 20px 18px !important;
+    margin: 14px 0 22px 0 !important;
+    text-align: center;
+  }
+</style>
+
+<script id="sakina-clean-layout-js">
+  function applyCleanSakinaLayout() {
+    const subtitle = document.getElementById('subtitle');
+    const welcomeBanner = document.getElementById('welcome-banner');
+    const mainGrid = document.getElementById('main-grid');
+    const header = document.querySelector('main header');
+
+    // 1. إزالة نص "أهلاً بك في ملاذك الآمن..." من الهيدر
+    if (subtitle && subtitle.textContent.includes('أهلاً بك')) {
+      subtitle.remove();
+    }
+    if (header) {
+      header.querySelectorAll('p, div, span').forEach(el => {
+        if (el.id !== 'subtitle' && el.children.length === 0 && el.textContent.includes('أهلاً بك في ملاذك الآمن')) {
+          el.remove();
+        }
+      });
+    }
+
+    // 2. نقل مربع "عزيزي.." ليصبح تحت عنوان ملاذ المؤمن مباشرة
+    if (welcomeBanner && header && header.nextElementSibling !== welcomeBanner) {
+      welcomeBanner.style.marginTop = '14px';
+      welcomeBanner.style.marginBottom = '14px';
+      header.insertAdjacentElement('afterend', welcomeBanner);
+    }
+
+    // 3. إزالة أي بطاقات جبر مكررة قديمة في الصفحة
+    document.querySelectorAll('[data-sakina-card="jabr"], .sakina-jabr-tap-prompt').forEach(el => el.remove());
+    document.querySelectorAll('aside > div, main > div').forEach(box => {
+      if (box.id !== 'sakina-unified-jabr' && box.id !== 'welcome-banner' && box.id !== 'result-box') {
+        const txt = box.textContent || '';
+        if (txt.includes('رسالة جديدة') || txt.includes('رسالة جبر فورية') || (txt.includes('رسالة الجبر') && !box.id)) {
+          box.remove();
+        }
+      }
+    });
+
+    // 4. إنشاء بطاقة رسالة الجبر الموحدة المقفلة تحت مربع "عزيزي.." مباشرة
+    if (!document.getElementById('sakina-unified-jabr') && welcomeBanner) {
+      const jabrCard = document.createElement('div');
+      jabrCard.id = 'sakina-unified-jabr';
+      jabrCard.innerHTML = `
+        <div class="inline-flex items-center gap-2 bg-[#dfd3ee] text-[#5b4b70] px-4 py-1.5 rounded-full text-xs font-bold mb-3">
+          <svg class="w-4 h-4 stroke-[#6a5682]" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.5-9-9.5C1.5 7.8 4.5 4.5 8 5.2c1.7.3 3 1.4 4 2.8 1-1.4 2.3-2.5 4-2.8 3.5-.7 6.5 2.6 5 6.3-2 5-9 9.5-9 9.5z"/><path d="M9.5 12.5l2 2 3.5-3.5"/></svg>
+          <span id="unified-jabr-title">🔒 رسالة الجبر</span>
+        </div>
+        <div id="unified-jabr-locked" class="py-3.5 px-4 rounded-2xl bg-white/90 border border-dashed border-[#b9a7cf] text-[#56426e]">
+          <p class="text-xs md:text-sm font-bold leading-relaxed">اوصف شعورك أو اختر حالتك أولاً لتُفتح لك رسالة الجبر الخاصة بقلبك ✨</p>
+        </div>
+        <p id="unified-jabr-message" class="hidden text-sm md:text-base text-[#463659] font-medium leading-relaxed bg-white/95 rounded-2xl p-4 border border-[#e1d8ec] shadow-sm"></p>
+      `;
+      welcomeBanner.insertAdjacentElement('afterend', jabrCard);
+    }
+
+    // 5. ربط فتح البطاقة وتحديثها تلقائياً مع الآية المختارة
+    const reflectionEl = document.getElementById('reflection-text');
+    if (reflectionEl && !reflectionEl.dataset.jabrObserved) {
+      reflectionEl.dataset.jabrObserved = '1';
+      const syncUnifiedJabr = () => {
+        const msg = reflectionEl.textContent.trim();
+        const lockedEl = document.getElementById('unified-jabr-locked');
+        const msgEl = document.getElementById('unified-jabr-message');
+        const titleEl = document.getElementById('unified-jabr-title');
+        if (msg && msgEl) {
+          if (lockedEl) lockedEl.classList.add('hidden');
+          msgEl.classList.remove('hidden');
+          msgEl.classList.add('fade-in');
+          msgEl.textContent = msg;
+          if (titleEl) titleEl.textContent = '💌 رسالة الجبر لقلبك';
+        }
+      };
+      new MutationObserver(syncUnifiedJabr).observe(reflectionEl, { childList: true, characterData: true, subtree: true });
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    applyCleanSakinaLayout();
+    setTimeout(applyCleanSakinaLayout, 150);
+    setTimeout(applyCleanSakinaLayout, 600);
+  });
+</script>
+
 </body>
 </html>
