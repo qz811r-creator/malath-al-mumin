@@ -573,6 +573,47 @@
   }
 </style>
 
+
+<style id="sakina-desktop-single-column">
+  @media (min-width: 1024px) {
+    /* توحيد عرض الكمبيوتر ليصبح عموداً واحداً متمركزاً وأنيقاً مثل الجوال */
+    body > div,
+    .max-w-7xl,
+    .max-w-6xl,
+    .grid.lg\:grid-cols-12,
+    .grid.lg\:grid-cols-3,
+    .grid.md\:grid-cols-12 {
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      max-width: 680px !important;
+      margin-left: auto !important;
+      margin-right: auto !important;
+      gap: 24px !important;
+    }
+
+    /* جعل بطاقة ملاذ المؤمن الرئيسية أولاً ثم الخدمات ثم دفتر التأمل بعرض متناسق */
+    main,
+    aside {
+      width: 100% !important;
+      max-width: 680px !important;
+      position: static !important;
+    }
+
+    main {
+      order: 1 !important;
+    }
+
+    aside:last-of-type {
+      order: 2 !important;
+    }
+
+    aside:first-of-type {
+      order: 3 !important;
+    }
+  }
+</style>
+
 </head>
 <body class="min-h-screen p-4 py-8 text-slate-800">
 
