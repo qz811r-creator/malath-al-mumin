@@ -3221,6 +3221,134 @@
 
 
 
-<style id="sakina-jp-css">.sakina-jp-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;background:linear-gradient(135deg,#f5f1fa,#ede6f6);border:1px solid #dcd0ec;border-radius:16px;padding:10px 12px;margin:12px 0 14px}.sakina-jp-btn{background:#fff;border:1px solid #d2c2e8;color:#553f73;font-size:12px;font-weight:700;padding:7px 11px;border-radius:11px;cursor:pointer;white-space:nowrap}.sakina-jp-btn:hover:not(:disabled){background:#674ea7;color:#fff}.sakina-jp-btn:disabled{opacity:.4;cursor:not-allowed}.sakina-jp-info{text-align:center;flex:1}.sakina-jp-count{display:block;font-size:12px;font-weight:800;color:#463263}.sakina-jp-date{display:block;font-size:11px;color:#776394;margin-top:2px}</style><script id="sakina-jp-js">document.addEventListener("DOMContentLoaded",()=>{const run=()=>{let r=document.querySelector(".sakina-wt-root");if(!r)document.querySelectorAll("section,div,aside,h2,h3").forEach(e=>{if(!r&&(e.textContent||"").trim().startsWith("دفتر التأمل"))r=e.closest("section,div")||e});if(!r||r.dataset.jp==="1")return;r.dataset.jp="1";const K="malath_journal_series_v4",fmt=(ts)=>{try{return new Date(ts).toLocaleDateString("ar-SA",{weekday:"long",year:"numeric",month:"long",day:"numeric"})}catch(e){return new Date(ts).toISOString().slice(0,10)}};let P=[];try{P=JSON.parse(localStorage.getItem(K)||"[]")}catch(e){}if(!Array.isArray(P)||!P.length)P=[{ts:Date.now(),f:{}}];let i=P.length-1;const bar=document.createElement("div");bar.className="sakina-jp-bar";bar.innerHTML="<button type=button id=jp-p class=sakina-jp-btn>→ صفحة سابقة</button><div class=sakina-jp-info><span id=jp-n class=sakina-jp-count></span><span id=jp-d class=sakina-jp-date></span></div><button type=button id=jp-x class=sakina-jp-btn>صفحة جديدة +</button>";const h=r.querySelector("h2,h3,.sakina-wt-title");if(h&&h.parentNode===r)h.insertAdjacentElement("afterend",bar);else r.insertBefore(bar,r.firstChild);const pb=bar.querySelector("#jp-p"),nb=bar.querySelector("#jp-x"),ne=bar.querySelector("#jp-n"),de=bar.querySelector("#jp-d"),getFs=()=>{const all=Array.from(document.querySelectorAll("input:not([type=hidden]),textarea,select"));return all.filter(el=>Boolean(bar.compareDocumentPosition(el)&Node.DOCUMENT_POSITION_FOLLOWING)&&el.id!=="ai-feeling-input")};const sv=()=>{if(!P[i])return;const d={};getFs().forEach((x,k)=>{d[k]=x.value});P[i].f=d;localStorage.setItem(K,JSON.stringify(P))},rd=()=>{const p=P[i],fs=getFs();fs.forEach((x,k)=>{const val=(p.f&&p.f[k]!==undefined)?p.f[k]:"";x.value=val});ne.textContent=`صفحة ${i+1} من ${P.length}`;de.textContent=`📅 ${fmt(p.ts)}`;pb.disabled=i===0;nb.textContent=i===P.length-1?"صفحة جديدة +":"صفحة تالية ←"};pb.onclick=(e)=>{e.preventDefault();sv();if(i>0){i--;rd()}};nb.onclick=(e)=>{e.preventDefault();sv();if(i<P.length-1){i++}else{const lastTs=P[P.length-1].ts||Date.now();const nextTs=Math.max(Date.now(),lastTs+86400000);P.push({ts:nextTs,f:{}});i=P.length-1;localStorage.setItem(K,JSON.stringify(P))}rd()};document.addEventListener("input",(e)=>{if(getFs().includes(e.target))sv()});const sb=Array.from(document.querySelectorAll("button")).find(b=>Boolean(bar.compareDocumentPosition(b)&Node.DOCUMENT_POSITION_FOLLOWING)&&/حفظ|تدوين|تسجيل/.test(b.textContent||""));if(sb)sb.addEventListener("click",()=>{sv();const o=sb.textContent;sb.textContent="✓ تم حفظ الصفحة";setTimeout(()=>sb.textContent=o,1500)});rd()};run();setTimeout(run,500)});</script>
+
+<style id="sakina-jp-css">
+.sakina-jp-wrap{margin-top:12px}
+.sakina-jp-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;background:linear-gradient(135deg,#f5f1fa,#ede6f6);border:1px solid #dcd0ec;border-radius:16px;padding:10px 12px}
+.sakina-jp-actions{display:flex;justify-content:center;gap:8px;margin-top:8px;flex-wrap:wrap}
+.sakina-jp-btn{background:#fff;border:1px solid #d2c2e8;color:#553f73;font-size:12px;font-weight:700;padding:7px 11px;border-radius:11px;cursor:pointer;white-space:nowrap;transition:all .2s}
+.sakina-jp-btn:hover:not(:disabled){background:#674ea7;color:#fff;border-color:#674ea7}
+.sakina-jp-btn:disabled{opacity:.4;cursor:not-allowed}
+.sakina-jp-del{color:#b42318;border-color:#f4c7c3;background:#fff8f7}
+.sakina-jp-del:hover{background:#d92d20!important;color:#fff!important;border-color:#d92d20!important}
+.sakina-jp-info{text-align:center;flex:1}
+.sakina-jp-count{display:block;font-size:12px;font-weight:800;color:#463263}
+.sakina-jp-date{display:block;font-size:11px;color:#776394;margin-top:2px}
+.sakina-jp-modal{display:none;position:fixed;inset:0;background:rgba(30,22,46,.55);backdrop-filter:blur(6px);z-index:99999;align-items:center;justify-content:center;padding:16px}
+.sakina-jp-modal.open{display:flex}
+.sakina-jp-box{background:#fff;border-radius:20px;max-width:520px;width:100%;max-height:82vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,.25);direction:rtl}
+.sakina-jp-mhead{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:#f5f1fa;border-bottom:1px solid #e3d8f1}
+.sakina-jp-mbody{padding:14px 18px;overflow-y:auto;display:flex;flex-direction:column;gap:10px}
+.sakina-jp-card{border:1px solid #e3d8f1;border-radius:14px;padding:12px;background:#fcfbfe}
+.sakina-jp-card-top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px}
+.sakina-jp-preview{font-size:12px;color:#555;line-height:1.6;white-space:pre-line}
+</style>
+<script id="sakina-jp-js">
+document.addEventListener("DOMContentLoaded",()=>{
+  const run=()=>{
+    let r=document.querySelector(".sakina-wt-root");
+    if(!r)document.querySelectorAll("section,div,aside,h2,h3").forEach(e=>{if(!r&&(e.textContent||"").trim().startsWith("دفتر التأمل"))r=e.closest("section,div")||e});
+    if(!r||r.dataset.jp==="1")return;
+    r.dataset.jp="1";
+    const K="malath_journal_series_v4",fmt=(ts)=>{try{return new Date(ts).toLocaleDateString("ar-SA",{weekday:"long",year:"numeric",month:"long",day:"numeric"})}catch(e){return new Date(ts).toISOString().slice(0,10)}};
+    let P=[];try{P=JSON.parse(localStorage.getItem(K)||"[]")}catch(e){}
+    if(!Array.isArray(P)||!P.length)P=[{ts:Date.now(),f:{}}];
+    let i=P.length-1;
+
+    const wrap=document.createElement("div");
+    wrap.className="sakina-jp-wrap";
+    wrap.innerHTML=`
+      <div class="sakina-jp-bar">
+        <button type="button" id="jp-p" class="sakina-jp-btn">→ صفحة سابقة</button>
+        <div class="sakina-jp-info">
+          <span id="jp-n" class="sakina-jp-count"></span>
+          <span id="jp-d" class="sakina-jp-date"></span>
+        </div>
+        <button type="button" id="jp-x" class="sakina-jp-btn">صفحة جديدة +</button>
+      </div>
+      <div class="sakina-jp-actions">
+        <button type="button" id="jp-all" class="sakina-jp-btn">📖 كل التدوينات ومقارنة الأيام</button>
+        <button type="button" id="jp-del" class="sakina-jp-btn sakina-jp-del">🗑️ حذف هذه الصفحة</button>
+      </div>
+    `;
+    r.appendChild(wrap);
+
+    const modal=document.createElement("div");
+    modal.className="sakina-jp-modal";
+    modal.innerHTML=`
+      <div class="sakina-jp-box">
+        <div class="sakina-jp-mhead">
+          <strong style="color:#463263;font-size:15px">📖 سجل تدويناتك اليومية</strong>
+          <button type="button" id="jp-close" class="sakina-jp-btn">إغلاق ✕</button>
+        </div>
+        <div id="jp-list" class="sakina-jp-mbody"></div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+
+    const pb=wrap.querySelector("#jp-p"),nb=wrap.querySelector("#jp-x"),ne=wrap.querySelector("#jp-n"),de=wrap.querySelector("#jp-d"),allBtn=wrap.querySelector("#jp-all"),delBtn=wrap.querySelector("#jp-del"),listEl=modal.querySelector("#jp-list");
+    const getFs=()=>Array.from(document.querySelectorAll("input:not([type=hidden]),textarea,select")).filter(el=>Boolean(wrap.compareDocumentPosition(el)&Node.DOCUMENT_POSITION_FOLLOWING)&&el.id!=="ai-feeling-input");
+    const persist=()=>localStorage.setItem(K,JSON.stringify(P));
+    const sv=()=>{if(!P[i])return;const d={};getFs().forEach((x,k)=>{d[k]=x.value});P[i].f=d;persist()};
+    const rd=()=>{
+      const p=P[i],fs=getFs();
+      fs.forEach((x,k)=>{x.value=(p.f&&p.f[k]!==undefined)?p.f[k]:""});
+      ne.textContent=`صفحة ${i+1} من ${P.length}`;
+      de.textContent=`📅 ${fmt(p.ts)}`;
+      pb.disabled=i===0;
+      nb.textContent=i===P.length-1?"صفحة جديدة +":"صفحة تالية ←";
+    };
+    const deleteAt=(idx)=>{
+      if(P.length===1){
+        P=[{ts:Date.now(),f:{}}];
+        i=0;
+      }else{
+        P.splice(idx,1);
+        if(i>=P.length)i=P.length-1;
+      }
+      persist();
+      rd();
+    };
+    const renderAll=()=>{
+      sv();
+      listEl.innerHTML="";
+      P.forEach((p,idx)=>{
+        const vals=Object.values(p.f||{}).map(v=>(v||"").trim()).filter(Boolean);
+        const summary=vals.length?vals.join(" • "):"صفحة فارغة بدون تدوين بعد";
+        const card=document.createElement("div");
+        card.className="sakina-jp-card";
+        card.innerHTML=`
+          <div class="sakina-jp-card-top">
+            <div>
+              <strong style="font-size:13px;color:#463263">صفحة ${idx+1}</strong>
+              <span style="font-size:11px;color:#776394;display:block">📅 ${fmt(p.ts)}</span>
+            </div>
+            <div style="display:flex;gap:6px">
+              <button type="button" class="sakina-jp-btn" data-open="${idx}">فتح</button>
+              <button type="button" class="sakina-jp-btn sakina-jp-del" data-rm="${idx}">حذف</button>
+            </div>
+          </div>
+          <div class="sakina-jp-preview">${summary.replace(/</g,"&lt;")}</div>
+        `;
+        card.querySelector("[data-open]").onclick=()=>{i=idx;rd();modal.classList.remove("open")};
+        card.querySelector("[data-rm]").onclick=()=>{deleteAt(idx);renderAll()};
+        listEl.appendChild(card);
+      });
+    };
+
+    pb.onclick=(e)=>{e.preventDefault();sv();if(i>0){i--;rd()}};
+    nb.onclick=(e)=>{e.preventDefault();sv();if(i<P.length-1){i++}else{const lastTs=P[P.length-1].ts||Date.now();P.push({ts:Math.max(Date.now(),lastTs+86400000),f:{}});i=P.length-1;persist()}rd()};
+    delBtn.onclick=(e)=>{e.preventDefault();deleteAt(i)};
+    allBtn.onclick=(e)=>{e.preventDefault();renderAll();modal.classList.add("open")};
+    modal.querySelector("#jp-close").onclick=()=>modal.classList.remove("open");
+    modal.onclick=(e)=>{if(e.target===modal)modal.classList.remove("open")};
+    document.addEventListener("input",(e)=>{if(getFs().includes(e.target))sv()});
+    const sb=Array.from(document.querySelectorAll("button")).find(b=>Boolean(wrap.compareDocumentPosition(b)&Node.DOCUMENT_POSITION_FOLLOWING)&&/حفظ|تدوين|تسجيل/.test(b.textContent||""));
+    if(sb)sb.addEventListener("click",()=>{sv();const o=sb.textContent;sb.textContent="✓ تم حفظ الصفحة";setTimeout(()=>sb.textContent=o,1500)});
+    rd();
+  };
+  run();setTimeout(run,500);
+});
+</script>
 </body>
 </html>
