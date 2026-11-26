@@ -687,9 +687,8 @@
                     </button>
                 </div>
 
-                <div class="flex items-center justify-center gap-2">
-                    <button type="button" id="sakina-tb-reset" class="px-3.5 py-1.5 rounded-full bg-white hover:bg-slate-100 border border-slate-200 text-slate-600 font-bold text-xs transition-all">تصفير</button>
-                    <button type="button" id="sakina-tb-sound" class="px-3.5 py-1.5 rounded-full bg-white hover:bg-slate-100 border border-slate-200 text-slate-600 font-bold text-xs transition-all">الصوت: مفعل</button>
+                <div class="flex items-center justify-center">
+                    <button type="button" id="sakina-tb-reset" class="px-4 py-1.5 rounded-full bg-white hover:bg-slate-100 border border-slate-200 text-slate-600 font-bold text-xs transition-all">تصفير</button>
                 </div>
 
                 <script id="sakina-tasbeeh-pro-js">
@@ -700,27 +699,9 @@
                     const cycleEl = document.getElementById('sakina-tb-cycle');
                     const ringEl = document.getElementById('sakina-tb-progress');
                     const resetBtn = document.getElementById('sakina-tb-reset');
-                    const soundBtn = document.getElementById('sakina-tb-sound');
                     if (!btn) return;
 
                     const C = 490.08;
-                    let soundOn = true, audioCtx = null;
-
-                    const beep = (m) => {
-                        if (!soundOn) return;
-                        try {
-                            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                            if (audioCtx.state === 'suspended') audioCtx.resume();
-                            const o = audioCtx.createOscillator(), g = audioCtx.createGain();
-                            o.type = 'sine';
-                            o.frequency.setValueAtTime(m ? 780 : 520, audioCtx.currentTime);
-                            o.frequency.exponentialRampToValueAtTime(m ? 1050 : 260, audioCtx.currentTime + 0.05);
-                            g.gain.setValueAtTime(0.08, audioCtx.currentTime);
-                            g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.055);
-                            o.connect(g); g.connect(audioCtx.destination);
-                            o.start(); o.stop(audioCtx.currentTime + 0.06);
-                        } catch (e) {}
-                    };
 
                     const updateRing = () => {
                         const v = parseInt(countEl.textContent.trim(), 10) || 0;
@@ -756,7 +737,6 @@
                         setTimeout(() => btn.classList.remove('tap'), 80);
 
                         if (navigator.vibrate) navigator.vibrate(m ? [35, 40, 35] : 14);
-                        beep(m);
                     });
 
                     resetBtn.addEventListener('click', () => {
@@ -768,12 +748,6 @@
                         updateRing();
                     });
 
-                    soundBtn.addEventListener('click', () => {
-                        soundOn = !soundOn;
-                        soundBtn.textContent = soundOn ? 'الصوت: مفعل' : 'الصوت: صامت';
-                    });
-
-                    // مزامنة الحلقة إذا تغير الذكر أو الرقم
                     new MutationObserver(updateRing).observe(countEl, { childList: true, characterData: true, subtree: true });
                     updateRing();
                 })();
