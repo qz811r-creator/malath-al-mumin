@@ -1333,7 +1333,7 @@
             const resultBox = document.getElementById('result-box');
 
             document.getElementById('category-badge').textContent = category.title;
-            document.getElementById('subtitle').textContent = "اختر الحالة الدقيقة التي تصف ما بداخل قلبك";
+            if (document.getElementById('subtitle')) document.getElementById('subtitle').textContent = "اختر الحالة الدقيقة التي تصف ما بداخل قلبك";
             
             subGrid.innerHTML = '';
             category.items.forEach((item, index) => {
@@ -1380,7 +1380,7 @@
         function goBack() {
             document.getElementById('sub-section').classList.add('hidden');
             document.getElementById('result-box').classList.add('hidden');
-            document.getElementById('subtitle').textContent = "مساحتك الآمنة.. حيث لا أحكام ولا قيود";
+            if (document.getElementById('subtitle')) document.getElementById('subtitle').textContent = "مساحتك الآمنة.. حيث لا أحكام ولا قيود";
             
             const mainGrid = document.getElementById('main-grid');
             mainGrid.classList.remove('hidden', 'fade-in');
