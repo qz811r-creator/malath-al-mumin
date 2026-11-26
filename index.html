@@ -3127,5 +3127,97 @@
   });
 </script>
 
+
+<style id="sakina-liquid-glass-upgrade">
+  .sakina-gw-top {
+    justify-content: center !important;
+  }
+  .sakina-gw-lines {
+    display: none !important;
+  }
+  .sakina-gw-tile {
+    position: relative !important;
+    cursor: pointer !important;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.34) 0%, rgba(255, 255, 255, 0.14) 55%, rgba(255, 255, 255, 0.24) 100%) !important;
+    backdrop-filter: blur(22px) saturate(165%) !important;
+    -webkit-backdrop-filter: blur(22px) saturate(165%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.62) !important;
+    box-shadow:
+      0 10px 28px rgba(45, 32, 72, 0.18),
+      inset 0 1.5px 1px rgba(255, 255, 255, 0.75),
+      inset 0 -1px 1px rgba(255, 255, 255, 0.22) !important;
+    transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s ease, background 0.25s ease !important;
+    overflow: hidden !important;
+  }
+  .sakina-gw-tile::before {
+    content: "";
+    position: absolute;
+    top: -45%;
+    left: -30%;
+    width: 160%;
+    height: 75%;
+    background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.42) 0%, rgba(255, 255, 255, 0) 72%);
+    transform: rotate(-12deg);
+    pointer-events: none;
+  }
+  .sakina-gw-tile:hover,
+  .sakina-gw-tile:active {
+    transform: translateY(-3px) scale(1.02) !important;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.44) 0%, rgba(255, 255, 255, 0.20) 55%, rgba(255, 255, 255, 0.32) 100%) !important;
+    box-shadow:
+      0 14px 32px rgba(45, 32, 72, 0.24),
+      inset 0 1.5px 1.5px rgba(255, 255, 255, 0.88) !important;
+  }
+
+  @keyframes sakinaBtnPulse {
+    0%, 100% {
+      transform: scale(1);
+      box-shadow: 0 10px 26px rgba(52, 39, 80, 0.26), 0 0 0 0 rgba(255, 255, 255, 0.55);
+    }
+    50% {
+      transform: scale(1.03);
+      box-shadow: 0 14px 34px rgba(52, 39, 80, 0.34), 0 0 0 12px rgba(255, 255, 255, 0);
+    }
+  }
+  #sakina-start-btn {
+    animation: sakinaBtnPulse 2.4s ease-in-out infinite !important;
+    transition: transform 0.2s ease !important;
+  }
+  #sakina-start-btn:hover {
+    animation-play-state: paused !important;
+    transform: scale(1.04) !important;
+  }
+</style>
+<script id="sakina-liquid-glass-js">
+  document.addEventListener('DOMContentLoaded', () => {
+    const gw = document.getElementById('sakina-start-gateway');
+    if (!gw) return;
+
+    gw.querySelectorAll('.sakina-gw-lines').forEach(el => el.remove());
+
+    gw.querySelectorAll('.sakina-gw-tile').forEach(tile => {
+      tile.addEventListener('click', () => {
+        const title = (tile.textContent || '').trim();
+        gw.classList.add('sakina-gateway-closed');
+        setTimeout(() => {
+          let target = null;
+          if (title.includes('حالتك')) {
+            target = document.getElementById('main-grid');
+          } else if (title.includes('القرآن')) {
+            target = document.getElementById('ai-feeling-input') || document.getElementById('main-grid');
+          } else if (title.includes('السكينة')) {
+            target = document.querySelector('[data-sakina-tasbeeh-card="1"], [data-sakina-breath-card="1"]');
+          } else if (title.includes('التأمل')) {
+            target = document.querySelector('.sakina-wt-root');
+          }
+          if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }, 120);
+      });
+    });
+  });
+</script>
+
 </body>
 </html>
